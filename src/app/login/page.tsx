@@ -161,10 +161,10 @@ export default function LoginPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-lg sm:rounded-lg sm:px-10">
+        <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow-lg sm:rounded-lg sm:px-10">
           {/* Role Selection */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
               Select Your Role
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -233,13 +233,13 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Email Address
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
+                  <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
                   id="email"
@@ -247,10 +247,10 @@ export default function LoginPage() {
                   autoComplete="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
-                  className={`pl-10 block w-full border rounded-md px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 ${
+                  className={`pl-10 block w-full border rounded-md px-3 py-2 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 ${
                     errors.email
                       ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : `border-gray-300 ${currentConfig.focusColor}`
+                      : `border-gray-300 dark:border-gray-600 ${currentConfig.focusColor}`
                   }`}
                   placeholder="Enter your email address"
                 />
@@ -267,13 +267,13 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Password
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
+                  <Lock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
                   id="password"
@@ -283,10 +283,10 @@ export default function LoginPage() {
                   onChange={(e) =>
                     handleInputChange("password", e.target.value)
                   }
-                  className={`pl-10 pr-10 block w-full border rounded-md px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 ${
+                  className={`pl-10 pr-10 block w-full border rounded-md px-3 py-2 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 ${
                     errors.password
                       ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : `border-gray-300 ${currentConfig.focusColor}`
+                      : `border-gray-300 dark:border-gray-600 ${currentConfig.focusColor}`
                   }`}
                   placeholder="Enter your password"
                 />
@@ -296,7 +296,7 @@ export default function LoginPage() {
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    <EyeOff className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
                   ) : (
                     <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                   )}

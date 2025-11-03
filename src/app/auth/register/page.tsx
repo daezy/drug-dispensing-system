@@ -74,14 +74,6 @@ export default function RegisterPage() {
       tags: ["Dispense Drugs", "Inventory Control"],
       color: "purple",
     },
-    {
-      id: "admin" as UserRole,
-      name: "Administrator",
-      icon: Box,
-      description: "Manage system and oversee operations",
-      tags: ["System Control", "User Management"],
-      color: "red",
-    },
   ];
 
   const handleRoleSelect = (role: UserRole) => {

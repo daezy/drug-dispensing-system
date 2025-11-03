@@ -97,296 +97,360 @@ export default function DoctorDashboard() {
     <ProtectedRoute allowedRoles={["doctor"]}>
       <DashboardLayout title="Doctor Dashboard" role="doctor">
         <div className="space-y-6">
-          {/* Welcome Section */}
-          <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl p-6 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold mb-2">
-                  Welcome back, Dr. {user?.firstName}!
-                </h2>
-                <p className="text-green-100">
-                  You have {stats.todayAppointments} appointments scheduled for
-                  today
-                </p>
-              </div>
-              <div className="hidden md:block">
-                <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                  <Activity size={32} />
+          {/* Welcome Section with gradient */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-green-600 via-emerald-500 to-teal-500 rounded-3xl p-8 text-white shadow-xl">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-32 -mt-32"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-10 rounded-full -ml-24 -mb-24"></div>
+            <div className="relative z-10">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="inline-flex items-center px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm font-medium mb-3">
+                    <div className="w-2 h-2 bg-green-300 rounded-full mr-2 animate-pulse"></div>
+                    On Duty
+                  </div>
+                  <h1 className="text-3xl md:text-4xl font-bold mb-2">
+                    Welcome back, Dr. {user?.firstName || "Doctor"}!
+                  </h1>
+                  <p className="text-green-100 text-lg mb-6">
+                    You have {stats.todayAppointments} appointments scheduled
+                    today
+                  </p>
+                  <div className="flex flex-wrap gap-4">
+                    <button
+                      onClick={() =>
+                        router.push("/dashboard/doctor/prescriptions")
+                      }
+                      className="px-6 py-2.5 bg-white text-green-600 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
+                    >
+                      <Pill className="inline-block mr-2" size={18} />
+                      Manage Prescriptions
+                    </button>
+                    <button
+                      onClick={() => router.push("/dashboard/doctor/patients")}
+                      className="px-6 py-2.5 bg-white bg-opacity-20 backdrop-blur-sm text-white rounded-xl font-semibold hover:bg-opacity-30 transition-all"
+                    >
+                      <Users className="inline-block mr-2" size={18} />
+                      View Patients
+                    </button>
+                  </div>
+                </div>
+                <div className="hidden lg:flex items-center justify-center w-32 h-32 bg-white bg-opacity-20 backdrop-blur-sm rounded-3xl">
+                  <Stethoscope size={64} className="text-white" />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">
-                    Total Patients
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {stats.totalPatients}
-                  </p>
-                  <p className="text-xs text-green-600 flex items-center mt-1">
-                    <TrendingUp size={12} className="mr-1" />
-                    +12% from last month
-                  </p>
+          {/* Stats Grid - Compact & Modern */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Users className="text-white" size={24} />
                 </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Users className="text-blue-600" size={24} />
-                </div>
+                <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-xs font-semibold rounded-full">
+                  +12%
+                </span>
               </div>
+              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                Total Patients
+              </h3>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                {stats.totalPatients}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                <TrendingUp size={12} className="mr-1" />
+                From last month
+              </p>
             </div>
 
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">
-                    Active Prescriptions
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {stats.activePrescriptions}
-                  </p>
-                  <p className="text-xs text-green-600 flex items-center mt-1">
-                    <TrendingUp size={12} className="mr-1" />
-                    +8% from last week
-                  </p>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Pill className="text-white" size={24} />
                 </div>
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Pill className="text-purple-600" size={24} />
-                </div>
+                <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-xs font-semibold rounded-full">
+                  +8%
+                </span>
               </div>
+              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                Active Prescriptions
+              </h3>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                {stats.activePrescriptions}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                <TrendingUp size={12} className="mr-1" />
+                From last week
+              </p>
             </div>
 
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">
-                    Pending Approvals
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {stats.pendingApprovals}
-                  </p>
-                  <p className="text-xs text-yellow-600 flex items-center mt-1">
-                    <AlertCircle size={12} className="mr-1" />
-                    Requires attention
-                  </p>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <AlertCircle className="text-white" size={24} />
                 </div>
-                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                  <AlertCircle className="text-yellow-600" size={24} />
-                </div>
+                <span className="px-3 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 text-xs font-semibold rounded-full">
+                  Urgent
+                </span>
               </div>
+              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                Pending Approvals
+              </h3>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                {stats.pendingApprovals}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                <AlertCircle size={12} className="mr-1" />
+                Requires attention
+              </p>
             </div>
 
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">
-                    Today's Appointments
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {stats.todayAppointments}
-                  </p>
-                  <p className="text-xs text-blue-600 flex items-center mt-1">
-                    <Calendar size={12} className="mr-1" />
-                    Next at 2:00 PM
-                  </p>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <Calendar className="text-white" size={24} />
                 </div>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <Calendar className="text-green-600" size={24} />
-                </div>
+                <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-full">
+                  Today
+                </span>
               </div>
+              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                Appointments
+              </h3>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                {stats.todayAppointments}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                <Clock size={12} className="mr-1" />
+                Next at 2:00 PM
+              </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Recent Activity */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-              <div className="p-6 border-b border-gray-200">
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Recent Activity - Takes 2 columns */}
+            <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+              <div className="p-6 border-b border-gray-100 dark:border-gray-700">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Recent Activity
-                  </h3>
-                  <button className="text-primary hover:text-primary-dark text-sm font-medium">
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                      Recent Activity
+                    </h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      Latest updates and notifications
+                    </p>
+                  </div>
+                  <button className="px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors shadow-sm">
                     View All
                   </button>
                 </div>
               </div>
               <div className="p-6">
-                <div className="space-y-4">
-                  {recentActivity.map((activity) => {
-                    const Icon = getActivityIcon(activity.type);
-                    const colorClass = getActivityColor(activity.status);
+                {recentActivity.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Activity className="text-gray-400" size={32} />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                      No Recent Activity
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Your recent activities will appear here
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {recentActivity.map((activity) => {
+                      const Icon = getActivityIcon(activity.type);
+                      const colorClass = getActivityColor(activity.status);
 
-                    return (
-                      <div
-                        key={activity.id}
-                        className="flex items-start space-x-4"
-                      >
+                      return (
                         <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center ${colorClass}`}
+                          key={activity.id}
+                          className="flex items-start gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600 transition-colors"
                         >
-                          <Icon size={16} />
+                          <div
+                            className={`w-12 h-12 rounded-xl flex items-center justify-center ${colorClass}`}
+                          >
+                            <Icon size={20} />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">
+                              {activity.patient}
+                            </p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              {activity.description}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center">
+                              <Clock size={12} className="mr-1" />
+                              {activity.time}
+                            </p>
+                          </div>
+                          <div className="flex items-center">
+                            {activity.status === "completed" ? (
+                              <CheckCircle
+                                className="text-green-600"
+                                size={20}
+                              />
+                            ) : activity.status === "pending" ? (
+                              <Clock className="text-yellow-600" size={20} />
+                            ) : (
+                              <AlertCircle className="text-red-600" size={20} />
+                            )}
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">
-                            {activity.patient}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            {activity.description}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {activity.time}
-                          </p>
-                        </div>
-                        <div className="flex items-center">
-                          {activity.status === "completed" ? (
-                            <CheckCircle className="text-green-600" size={16} />
-                          ) : activity.status === "pending" ? (
-                            <Clock className="text-yellow-600" size={16} />
-                          ) : (
-                            <AlertCircle className="text-red-600" size={16} />
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Recent Patients */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Recent Patients
-                  </h3>
-                  <div className="flex items-center space-x-2">
-                    <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
-                      <Search size={16} />
-                    </button>
-                    <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
-                      <Filter size={16} />
-                    </button>
-                  </div>
+            {/* Sidebar with Quick Actions and Recent Patients */}
+            <div className="space-y-6">
+              {/* Quick Actions */}
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                  Quick Actions
+                </h3>
+                <div className="space-y-3">
+                  <button
+                    onClick={() =>
+                      router.push("/dashboard/doctor/prescriptions")
+                    }
+                    className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 transition-all shadow-sm hover:shadow-md"
+                  >
+                    <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                      <Pill size={20} />
+                    </div>
+                    <span className="font-semibold">New Prescription</span>
+                  </button>
+
+                  <button
+                    onClick={() => router.push("/dashboard/doctor/patients")}
+                    className="w-full flex items-center gap-3 p-4 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
+                  >
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                      <Users
+                        className="text-blue-600 dark:text-blue-400"
+                        size={20}
+                      />
+                    </div>
+                    <span className="font-semibold">View Patients</span>
+                  </button>
+
+                  <button
+                    onClick={() => router.push("/dashboard/doctor/history")}
+                    className="w-full flex items-center gap-3 p-4 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
+                  >
+                    <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                      <FileText
+                        className="text-purple-600 dark:text-purple-400"
+                        size={20}
+                      />
+                    </div>
+                    <span className="font-semibold">History</span>
+                  </button>
                 </div>
               </div>
-              <div className="p-6">
-                <div className="space-y-4">
-                  {recentPatients.map((patient) => (
-                    <div
-                      key={patient.id}
-                      className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-primary transition-colors"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                          <Users className="text-gray-600" size={16} />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">
-                            {patient.name}
-                          </p>
-                          <p className="text-xs text-gray-600">
-                            {patient.age} years • {patient.gender}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {patient.condition}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span
-                          className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(
-                            patient.status
-                          )}`}
-                        >
-                          {patient.status}
-                        </span>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {patient.lastVisit}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+
+              {/* Recent Patients Mini Card */}
+              <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900 dark:to-cyan-900 rounded-2xl p-6 border border-blue-100 dark:border-blue-800">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
+                    <Users className="text-white" size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900 dark:text-white">
+                      Total Patients
+                    </h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      Under your care
+                    </p>
+                  </div>
+                </div>
+                <div className="text-center">
+                  <p className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                    {stats.totalPatients}
+                  </p>
+                  <button
+                    onClick={() => router.push("/dashboard/doctor/patients")}
+                    className="text-sm text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+                  >
+                    View All Patients →
+                  </button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Quick Actions
+          {/* Performance Metrics */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+              Performance Metrics
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <button
-                onClick={() => router.push("/doctor/prescriptions")}
-                className="flex items-center space-x-3 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-colors group"
-              >
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-500">
-                  <Pill
-                    size={20}
-                    className="text-blue-600 group-hover:text-white"
-                  />
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900 dark:to-emerald-900 rounded-xl border border-green-100 dark:border-green-800">
+                <div className="w-14 h-14 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Pill className="text-white" size={28} />
                 </div>
-                <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900">
-                    Manage Prescriptions
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    Create & manage prescriptions
-                  </p>
-                </div>
-              </button>
+                <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-lg">
+                  Prescriptions
+                </h4>
+                <p className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
+                  {stats.activePrescriptions}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  This month
+                </p>
+              </div>
 
-              <button className="flex items-center space-x-3 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-green-500 hover:bg-green-50 transition-colors group">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-500">
-                  <Plus
-                    size={20}
-                    className="text-green-600 group-hover:text-white"
-                  />
+              <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900 dark:to-cyan-900 rounded-xl border border-blue-100 dark:border-blue-800">
+                <div className="w-14 h-14 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Users className="text-white" size={28} />
                 </div>
-                <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900">
-                    New Patient
-                  </p>
-                  <p className="text-xs text-gray-600">Register new patient</p>
-                </div>
-              </button>
+                <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-lg">
+                  Patients Seen
+                </h4>
+                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                  {stats.totalPatients}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Total active
+                </p>
+              </div>
 
-              <button className="flex items-center space-x-3 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-purple-500 hover:bg-purple-50 transition-colors group">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-500">
-                  <Calendar
-                    size={20}
-                    className="text-purple-600 group-hover:text-white"
-                  />
+              <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900 dark:to-pink-900 rounded-xl border border-purple-100 dark:border-purple-800">
+                <div className="w-14 h-14 bg-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Calendar className="text-white" size={28} />
                 </div>
-                <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900">
-                    Schedule Appointment
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    Book patient appointment
-                  </p>
-                </div>
-              </button>
+                <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-lg">
+                  Appointments
+                </h4>
+                <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">
+                  {stats.todayAppointments}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Scheduled today
+                </p>
+              </div>
 
-              <button className="flex items-center space-x-3 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-orange-500 hover:bg-orange-50 transition-colors group">
-                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-500">
-                  <FileText
-                    size={20}
-                    className="text-orange-600 group-hover:text-white"
-                  />
+              <div className="text-center p-6 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900 dark:to-red-900 rounded-xl border border-orange-100 dark:border-orange-800">
+                <div className="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Activity className="text-white" size={28} />
                 </div>
-                <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900">
-                    Medical Records
-                  </p>
-                  <p className="text-xs text-gray-600">View patient history</p>
-                </div>
-              </button>
+                <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-lg">
+                  Success Rate
+                </h4>
+                <p className="text-3xl font-bold text-orange-600 dark:text-orange-400 mb-2">
+                  98%
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Treatment success
+                </p>
+              </div>
             </div>
           </div>
         </div>

@@ -12,6 +12,11 @@
   --blockchain: #8b5cf6;
 }
 
+/* Dark mode variables */
+.dark {
+  color-scheme: dark;
+}
+
 /* Global Styles */
 * {
   scroll-behavior: smooth;
@@ -22,6 +27,41 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dark mode utility classes */
+@layer utilities {
+  .dark .dark\:bg-gray-900 {
+    background-color: rgb(17 24 39);
+  }
+
+  .dark .dark\:bg-gray-800 {
+    background-color: rgb(31 41 55);
+  }
+
+  .dark .dark\:bg-gray-700 {
+    background-color: rgb(55 65 81);
+  }
+
+  .dark .dark\:text-white {
+    color: rgb(255 255 255);
+  }
+
+  .dark .dark\:text-gray-300 {
+    color: rgb(209 213 219);
+  }
+
+  .dark .dark\:text-gray-400 {
+    color: rgb(156 163 175);
+  }
+
+  .dark .dark\:border-gray-700 {
+    border-color: rgb(55 65 81);
+  }
+
+  .dark .dark\:border-gray-600 {
+    border-color: rgb(75 85 99);
+  }
 }
 
 /* Custom Components */

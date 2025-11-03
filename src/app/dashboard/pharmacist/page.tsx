@@ -16,6 +16,7 @@ import {
   Truck,
   Users,
   ShoppingCart,
+  FileText,
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -119,156 +120,184 @@ export default function PharmacistDashboard() {
     <ProtectedRoute allowedRoles={["pharmacist"]}>
       <DashboardLayout title="Pharmacist Dashboard" role="pharmacist">
         <div className="space-y-6">
-          {/* Welcome Section */}
-          <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl p-6 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold mb-2">
-                  Welcome back, {user?.firstName}!
-                </h2>
-                <p className="text-purple-100">
-                  You have {stats.pendingPrescriptions} prescriptions to process
-                  today
-                </p>
-              </div>
-              <div className="hidden md:block">
-                <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                  <Pill size={32} />
+          {/* Welcome Section with gradient */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 rounded-3xl p-8 text-white shadow-xl">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-32 -mt-32"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-10 rounded-full -ml-24 -mb-24"></div>
+            <div className="relative z-10">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="inline-flex items-center px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm font-medium mb-3">
+                    <div className="w-2 h-2 bg-purple-300 rounded-full mr-2 animate-pulse"></div>
+                    On Duty
+                  </div>
+                  <h1 className="text-3xl md:text-4xl font-bold mb-2">
+                    Welcome back, {user?.firstName || "Pharmacist"}!
+                  </h1>
+                  <p className="text-purple-100 text-lg mb-6">
+                    {stats.pendingPrescriptions} prescriptions waiting to be
+                    processed
+                  </p>
+                  <div className="flex flex-wrap gap-4">
+                    <button
+                      onClick={() =>
+                        router.push("/dashboard/pharmacist/prescriptions")
+                      }
+                      className="px-6 py-2.5 bg-white text-purple-600 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
+                    >
+                      <Pill className="inline-block mr-2" size={18} />
+                      Process Prescriptions
+                    </button>
+                    <button
+                      onClick={() =>
+                        router.push("/dashboard/pharmacist/dispense")
+                      }
+                      className="px-6 py-2.5 bg-white bg-opacity-20 backdrop-blur-sm text-white rounded-xl font-semibold hover:bg-opacity-30 transition-all"
+                    >
+                      <Package className="inline-block mr-2" size={18} />
+                      Dispense Drugs
+                    </button>
+                  </div>
+                </div>
+                <div className="hidden lg:flex items-center justify-center w-32 h-32 bg-white bg-opacity-20 backdrop-blur-sm rounded-3xl">
+                  <Pill size={64} className="text-white" />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          {/* Stats Grid - Compact & Modern */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
                     Pending Prescriptions
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                     {stats.pendingPrescriptions}
                   </p>
-                  <p className="text-xs text-yellow-600 flex items-center mt-1">
-                    <Clock size={12} className="mr-1" />3 urgent orders
-                  </p>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">
+                    <Clock size={12} className="mr-1" />3 urgent
+                  </span>
                 </div>
-                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                  <Pill className="text-yellow-600" size={24} />
+                <div className="w-14 h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Pill className="text-white" size={28} />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
                     Low Stock Items
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                     {stats.lowStockItems}
                   </p>
-                  <p className="text-xs text-red-600 flex items-center mt-1">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200">
                     <AlertCircle size={12} className="mr-1" />
-                    Requires attention
-                  </p>
+                    Attention needed
+                  </span>
                 </div>
-                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                  <Package className="text-red-600" size={24} />
+                <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Package className="text-white" size={28} />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
                     Orders Today
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                     {stats.ordersToday}
                   </p>
-                  <p className="text-xs text-green-600 flex items-center mt-1">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
                     <TrendingUp size={12} className="mr-1" />
-                    +15% from yesterday
-                  </p>
+                    +15% yesterday
+                  </span>
                 </div>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <ShoppingCart className="text-green-600" size={24} />
+                <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <ShoppingCart className="text-white" size={28} />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
                     Total Inventory
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                     {stats.totalInventory.toLocaleString()}
                   </p>
-                  <p className="text-xs text-blue-600 flex items-center mt-1">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200">
                     <Activity size={12} className="mr-1" />
                     Items in stock
-                  </p>
+                  </span>
                 </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Package className="text-blue-600" size={24} />
+                <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Package className="text-white" size={28} />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Pending Prescriptions */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-              <div className="p-6 border-b border-gray-200">
+          {/* Main Content Grid - 3 columns on large screens */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Pending Prescriptions - 2 columns */}
+            <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                    <Pill className="mr-2 text-purple-600" size={24} />
                     Pending Prescriptions
                   </h3>
                   <div className="flex items-center space-x-2">
-                    <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
-                      <Search size={16} />
+                    <button className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                      <Search size={18} />
                     </button>
-                    <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
-                      <Filter size={16} />
+                    <button className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                      <Filter size={18} />
                     </button>
                   </div>
                 </div>
               </div>
               <div className="p-6">
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {pendingPrescriptions.map((prescription) => (
                     <div
                       key={prescription.id}
-                      className="border border-gray-200 rounded-lg p-4"
+                      className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-4 hover:shadow-md transition-shadow"
                     >
                       <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h4 className="font-semibold text-gray-900">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900 dark:text-white text-lg">
                             {prescription.patientName}
                           </h4>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-700 dark:text-gray-300 font-medium mt-1">
                             {prescription.medication} {prescription.dosage}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                             Qty: {prescription.quantity} • Dr.{" "}
                             {prescription.prescribedBy}
                           </p>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex flex-col items-end space-y-1">
                           <span
-                            className={`px-2 py-1 text-xs font-medium rounded-full ${getUrgencyColor(
+                            className={`px-2.5 py-1 text-xs font-semibold rounded-full ${getUrgencyColor(
                               prescription.urgency
                             )}`}
                           >
                             {prescription.urgency}
                           </span>
                           <span
-                            className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
+                            className={`px-2.5 py-1 text-xs font-semibold rounded-full ${getStatusColor(
                               prescription.status
                             )}`}
                           >
@@ -277,8 +306,9 @@ export default function PharmacistDashboard() {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500">
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-600">
+                        <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                          <Clock size={12} className="mr-1" />
                           {prescription.date}
                         </span>
                         <div className="flex items-center space-x-2">
@@ -287,7 +317,7 @@ export default function PharmacistDashboard() {
                               onClick={() =>
                                 router.push("/pharmacist/dispense")
                               }
-                              className="px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200"
+                              className="px-4 py-1.5 text-xs font-medium bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-sm transition-all"
                             >
                               Start Processing
                             </button>
@@ -297,7 +327,7 @@ export default function PharmacistDashboard() {
                               onClick={() =>
                                 router.push("/pharmacist/dispense")
                               }
-                              className="px-3 py-1 text-xs bg-green-100 text-green-600 rounded-full hover:bg-green-200"
+                              className="px-4 py-1.5 text-xs font-medium bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 shadow-sm transition-all"
                             >
                               Mark Ready
                             </button>
@@ -307,7 +337,7 @@ export default function PharmacistDashboard() {
                               onClick={() =>
                                 router.push("/pharmacist/dispense")
                               }
-                              className="px-3 py-1 text-xs bg-purple-100 text-purple-600 rounded-full hover:bg-purple-200"
+                              className="px-4 py-1.5 text-xs font-medium bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 shadow-sm transition-all"
                             >
                               Dispense
                             </button>
@@ -320,184 +350,187 @@ export default function PharmacistDashboard() {
               </div>
             </div>
 
-            {/* Low Stock Items */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Low Stock Alert
-                  </h3>
-                  <button className="text-primary hover:text-primary-dark text-sm font-medium">
-                    View All Inventory
+            {/* Sidebar - Low Stock & Quick Actions */}
+            <div className="space-y-6">
+              {/* Quick Actions Card */}
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                  <Package className="mr-2 text-purple-600" size={20} />
+                  Quick Actions
+                </h3>
+                <div className="space-y-3">
+                  <button
+                    onClick={() =>
+                      router.push("/dashboard/pharmacist/dispense")
+                    }
+                    className="w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl font-medium hover:from-purple-600 hover:to-purple-700 shadow-md hover:shadow-lg transition-all flex items-center justify-center"
+                  >
+                    <Pill className="mr-2" size={18} />
+                    Dispense Drugs
+                  </button>
+                  <button className="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center">
+                    <Package className="mr-2" size={16} />
+                    Manage Inventory
+                  </button>
+                  <button className="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center">
+                    <FileText className="mr-2" size={16} />
+                    View Reports
+                  </button>
+                  <button className="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center">
+                    <Users className="mr-2" size={16} />
+                    Patient Lookup
                   </button>
                 </div>
               </div>
-              <div className="p-6">
-                <div className="space-y-4">
-                  {lowStockItems.map((item) => {
-                    const StockIcon = getStockIcon(item.status);
 
-                    return (
-                      <div
-                        key={item.id}
-                        className="border border-gray-200 rounded-lg p-4"
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <h4 className="font-semibold text-gray-900">
-                              {item.medication}
-                            </h4>
-                            <p className="text-sm text-gray-600">
-                              {item.brand}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              Supplier: {item.supplier}
-                            </p>
+              {/* Low Stock Alert Card */}
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700">
+                <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+                      <AlertCircle className="mr-2 text-red-600" size={20} />
+                      Low Stock Alert
+                    </h3>
+                    <button className="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 text-sm font-medium transition-colors">
+                      View All
+                    </button>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <div className="space-y-3">
+                    {lowStockItems.map((item) => {
+                      const StockIcon = getStockIcon(item.status);
+
+                      return (
+                        <div
+                          key={item.id}
+                          className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-4 hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-900 dark:text-white">
+                                {item.medication}
+                              </h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-300 mt-0.5">
+                                {item.brand}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                Supplier: {item.supplier}
+                              </p>
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-2">
+
+                          <div className="mb-3">
                             <span
-                              className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
+                              className={`inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full ${getStatusColor(
                                 item.status
                               )}`}
                             >
-                              <StockIcon size={10} className="inline mr-1" />
+                              <StockIcon size={12} className="mr-1" />
                               {item.status.replace("-", " ")}
                             </span>
                           </div>
-                        </div>
 
-                        <div className="grid grid-cols-2 gap-4 mb-3">
-                          <div>
-                            <p className="text-xs text-gray-500">
-                              Current Stock
-                            </p>
-                            <p className="text-sm font-medium text-gray-900">
-                              {item.currentStock}
-                            </p>
+                          <div className="grid grid-cols-2 gap-3 mb-3 text-sm">
+                            <div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                Current Stock
+                              </p>
+                              <p className="font-semibold text-gray-900 dark:text-white">
+                                {item.currentStock}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                Min. Stock
+                              </p>
+                              <p className="font-semibold text-gray-900 dark:text-white">
+                                {item.minimumStock}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-xs text-gray-500">
-                              Minimum Stock
-                            </p>
-                            <p className="text-sm font-medium text-gray-900">
-                              {item.minimumStock}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500">Unit Price</p>
-                            <p className="text-sm font-medium text-gray-900">
-                              ${item.unitPrice}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500">Expiry</p>
-                            <p className="text-sm font-medium text-gray-900">
-                              {item.expiryDate}
-                            </p>
+                          <div className="pt-3 border-t border-gray-200 dark:border-gray-600">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-gray-500 dark:text-gray-400">
+                                Expiry: {item.expiryDate}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1 bg-gray-200 dark:bg-gray-600 rounded-full h-2 mr-3">
+                                <div
+                                  className={`h-2 rounded-full ${
+                                    item.currentStock === 0
+                                      ? "bg-red-500"
+                                      : item.currentStock < item.minimumStock
+                                      ? "bg-yellow-500"
+                                      : "bg-green-500"
+                                  }`}
+                                  style={{
+                                    width: `${Math.min(
+                                      (item.currentStock / item.minimumStock) *
+                                        100,
+                                      100
+                                    )}%`,
+                                  }}
+                                ></div>
+                              </div>
+                              <button className="px-3 py-1.5 text-xs font-medium bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-sm transition-all whitespace-nowrap">
+                                <Plus size={12} className="inline mr-1" />
+                                Reorder
+                              </button>
+                            </div>
                           </div>
                         </div>
-
-                        <div className="flex items-center justify-between">
-                          <div className="w-full bg-gray-200 rounded-full h-2 mr-4">
-                            <div
-                              className={`h-2 rounded-full ${
-                                item.currentStock === 0
-                                  ? "bg-red-500"
-                                  : item.currentStock < item.minimumStock
-                                  ? "bg-yellow-500"
-                                  : "bg-green-500"
-                              }`}
-                              style={{
-                                width: `${Math.min(
-                                  (item.currentStock / item.minimumStock) * 100,
-                                  100
-                                )}%`,
-                              }}
-                            ></div>
-                          </div>
-                          <button className="px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 whitespace-nowrap">
-                            <Plus size={10} className="inline mr-1" />
-                            Reorder
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Quick Actions
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <button
-                onClick={() => router.push("/pharmacist/dispense")}
-                className="flex items-center space-x-3 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-green-500 hover:bg-green-50 transition-colors group"
-              >
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-500">
-                  <Pill
-                    className="text-green-600 group-hover:text-white"
-                    size={20}
-                  />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900">
-                    Dispense Prescriptions
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    Process pending orders
-                  </p>
-                </div>
-              </button>
+          {/* Performance Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700 rounded-2xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between mb-2">
+                <Pill size={24} className="opacity-80" />
+                <span className="text-2xl font-bold">{stats.ordersToday}</span>
+              </div>
+              <h4 className="font-semibold text-purple-100">Orders Today</h4>
+              <p className="text-sm text-purple-200 mt-1">
+                +15% from yesterday
+              </p>
+            </div>
 
-              <button className="flex items-center space-x-3 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-primary hover:bg-primary hover:bg-opacity-5 transition-colors group">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-white">
-                  <Package
-                    className="text-blue-600 group-hover:text-white"
-                    size={20}
-                  />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900">
-                    Manage Inventory
-                  </p>
-                  <p className="text-xs text-gray-600">Update stock levels</p>
-                </div>
-              </button>
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-2xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between mb-2">
+                <Package size={24} className="opacity-80" />
+                <span className="text-2xl font-bold">
+                  {stats.totalInventory}
+                </span>
+              </div>
+              <h4 className="font-semibold text-blue-100">Total Inventory</h4>
+              <p className="text-sm text-blue-200 mt-1">Items in stock</p>
+            </div>
 
-              <button className="flex items-center space-x-3 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-primary hover:bg-primary hover:bg-opacity-5 transition-colors group">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-white">
-                  <Truck
-                    className="text-purple-600 group-hover:text-white"
-                    size={20}
-                  />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900">
-                    Track Delivery
-                  </p>
-                  <p className="text-xs text-gray-600">Monitor shipments</p>
-                </div>
-              </button>
+            <div className="bg-gradient-to-br from-pink-500 to-pink-600 dark:from-pink-600 dark:to-pink-700 rounded-2xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between mb-2">
+                <AlertCircle size={24} className="opacity-80" />
+                <span className="text-2xl font-bold">
+                  {stats.lowStockItems}
+                </span>
+              </div>
+              <h4 className="font-semibold text-pink-100">Low Stock</h4>
+              <p className="text-sm text-pink-200 mt-1">Requires attention</p>
+            </div>
 
-              <button className="flex items-center space-x-3 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-primary hover:bg-primary hover:bg-opacity-5 transition-colors group">
-                <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-white">
-                  <Users
-                    className="text-yellow-600 group-hover:text-white"
-                    size={20}
-                  />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900">
-                    Patient Consultation
-                  </p>
-                  <p className="text-xs text-gray-600">Provide guidance</p>
-                </div>
-              </button>
+            <div className="bg-gradient-to-br from-green-500 to-emerald-600 dark:from-green-600 dark:to-emerald-700 rounded-2xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between mb-2">
+                <CheckCircle size={24} className="opacity-80" />
+                <span className="text-2xl font-bold">98%</span>
+              </div>
+              <h4 className="font-semibold text-green-100">Success Rate</h4>
+              <p className="text-sm text-green-200 mt-1">This month</p>
             </div>
           </div>
         </div>

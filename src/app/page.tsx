@@ -147,18 +147,6 @@ function LoginPageContent() {
       activeBg: "bg-purple-100",
       activeBorder: "border-purple-500",
     },
-    {
-      value: "admin" as UserRole,
-      label: "Administrator",
-      icon: Box,
-      color: "red",
-      bgColor: "bg-red-50",
-      borderColor: "border-red-200",
-      textColor: "text-red-600",
-      hoverBg: "hover:bg-red-100",
-      activeBg: "bg-red-100",
-      activeBorder: "border-red-500",
-    },
   ];
 
   return (
