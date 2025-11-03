@@ -21,7 +21,7 @@ import {
 import DashboardLayout from "@/components/DashboardLayout";
 
 // Force dynamic rendering for this page
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 import { useAuth } from "@/lib/auth-context";
 import { showSuccess, showError, showWarning } from "@/lib/utils/toast-helper";
 
