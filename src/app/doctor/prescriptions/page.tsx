@@ -86,52 +86,23 @@ export default function DoctorPrescriptionPage() {
   }, [user, router]);
 
   const loadData = async () => {
-    // Mock data - replace with actual API calls
-    setPatients([
-      {
-        id: "1",
-        name: "John Doe",
-        age: 35,
-        phone: "+1234567890",
-        email: "john@email.com",
-      },
-      {
-        id: "2",
-        name: "Jane Smith",
-        age: 28,
-        phone: "+1234567891",
-        email: "jane@email.com",
-      },
-      {
-        id: "3",
-        name: "Mike Johnson",
-        age: 45,
-        phone: "+1234567892",
-        email: "mike@email.com",
-      },
-    ]);
+    try {
+      // Fetch patients from API
+      const patientsResponse = await fetch("/api/patients");
+      if (patientsResponse.ok) {
+        const patientsData = await patientsResponse.json();
+        setPatients(patientsData.patients || []);
+      }
 
-    setRecentPrescriptions([
-      {
-        id: "1",
-        patientName: "John Doe",
-        patientId: "1",
-        medications: [
-          {
-            drugName: "Amoxicillin",
-            dosage: "500mg",
-            frequency: "3 times daily",
-            duration: "7 days",
-            instructions: "Take with food",
-            quantity: 21,
-          },
-        ],
-        diagnosis: "Bacterial infection",
-        notes: "Follow up in 1 week",
-        dateIssued: "2024-10-27",
-        status: "issued",
-      },
-    ]);
+      // Fetch recent prescriptions from API
+      const prescriptionsResponse = await fetch("/api/prescriptions/recent");
+      if (prescriptionsResponse.ok) {
+        const prescriptionsData = await prescriptionsResponse.json();
+        setRecentPrescriptions(prescriptionsData.prescriptions || []);
+      }
+    } catch (error) {
+      console.error("Failed to load data:", error);
+    }
   };
 
   const addMedication = () => {

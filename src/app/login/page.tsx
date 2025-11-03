@@ -104,49 +104,24 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // Mock authentication - replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate network delay
+      // Call actual authentication
+      const success = await login(
+        formData.email,
+        formData.password,
+        formData.role,
+        formData.rememberMe
+      );
 
-      // Mock successful login based on role
-      const mockUsers = {
-        doctor: {
-          id: "doc_1",
-          email: formData.email,
-          name: "Dr. John Smith",
-          role: "doctor" as const,
-          license: "MD-2024-001",
-        },
-        patient: {
-          id: "pat_1",
-          email: formData.email,
-          name: "Jane Doe",
-          role: "patient" as const,
-          dateOfBirth: "1990-01-01",
-        },
-        pharmacist: {
-          id: "pharm_1",
-          email: formData.email,
-          name: "Mike Johnson",
-          role: "pharmacist" as const,
-          license: "PharmD-2024-001",
-        },
-      };
+      if (success) {
+        // Role-based routing
+        const dashboardRoutes = {
+          doctor: "/doctor/dashboard",
+          patient: "/patient/dashboard",
+          pharmacist: "/pharmacist/dashboard",
+        };
 
-      const mockUser = mockUsers[formData.role];
-
-      // Simulate login process
-      await login(mockUser, formData.password);
-
-      showSuccess(`Welcome back, ${mockUser.name}!`);
-
-      // Role-based routing
-      const dashboardRoutes = {
-        doctor: "/doctor/dashboard",
-        patient: "/patient/dashboard",
-        pharmacist: "/pharmacist/dashboard",
-      };
-
-      router.push(dashboardRoutes[formData.role]);
+        router.push(dashboardRoutes[formData.role]);
+      }
     } catch (error) {
       showError("Invalid credentials. Please check your email and password.");
     } finally {

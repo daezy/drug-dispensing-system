@@ -50,85 +50,14 @@ interface Patient {
 export default function DoctorDashboard() {
   const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>({
-    totalPatients: 247,
-    activePrescriptions: 89,
-    pendingApprovals: 12,
-    todayAppointments: 8,
+    totalPatients: 0,
+    activePrescriptions: 0,
+    pendingApprovals: 0,
+    todayAppointments: 0,
   });
 
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([
-    {
-      id: "1",
-      type: "prescription",
-      patient: "Sarah Johnson",
-      description: "Prescribed Metformin 500mg",
-      time: "2 hours ago",
-      status: "completed",
-    },
-    {
-      id: "2",
-      type: "appointment",
-      patient: "Mike Chen",
-      description: "Follow-up consultation",
-      time: "4 hours ago",
-      status: "completed",
-    },
-    {
-      id: "3",
-      type: "approval",
-      patient: "Emily Davis",
-      description: "Prescription approval required",
-      time: "1 day ago",
-      status: "pending",
-    },
-    {
-      id: "4",
-      type: "prescription",
-      patient: "John Smith",
-      description: "Prescribed Lisinopril 10mg",
-      time: "2 days ago",
-      status: "completed",
-    },
-  ]);
-
-  const [recentPatients, setRecentPatients] = useState<Patient[]>([
-    {
-      id: "1",
-      name: "Sarah Johnson",
-      age: 45,
-      gender: "Female",
-      lastVisit: "2024-01-15",
-      condition: "Type 2 Diabetes",
-      status: "active",
-    },
-    {
-      id: "2",
-      name: "Mike Chen",
-      age: 32,
-      gender: "Male",
-      lastVisit: "2024-01-14",
-      condition: "Hypertension",
-      status: "active",
-    },
-    {
-      id: "3",
-      name: "Emily Davis",
-      age: 28,
-      gender: "Female",
-      lastVisit: "2024-01-10",
-      condition: "Migraine",
-      status: "active",
-    },
-    {
-      id: "4",
-      name: "Robert Wilson",
-      age: 56,
-      gender: "Male",
-      lastVisit: "2024-01-08",
-      condition: "Arthritis",
-      status: "inactive",
-    },
-  ]);
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+  const [recentPatients, setRecentPatients] = useState<Patient[]>([]);
 
   const { user } = useAuth();
 

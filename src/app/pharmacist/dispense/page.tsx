@@ -86,111 +86,14 @@ export default function PharmacistDispensePage() {
     setIsLoading(true);
 
     try {
-      // Mock data - replace with actual API call
-      const mockPrescriptions: PendingPrescription[] = [
-        {
-          id: "1",
-          prescriptionNumber: "RX-2024-001",
-          patientName: "Alice Johnson",
-          patientId: "P001",
-          patientAge: 34,
-          patientPhone: "+1234567890",
-          doctorName: "Dr. Sarah Wilson",
-          doctorLicense: "MD-2024-001",
-          diagnosis: "Bacterial Infection",
-          dateIssued: "2024-10-26",
-          priority: "normal",
-          status: "pending",
-          notes: "Patient has penicillin allergy - confirmed with doctor",
-          medications: [
-            {
-              id: "m1",
-              drugName: "Amoxicillin",
-              dosage: "500mg",
-              frequency: "3 times daily",
-              duration: "7 days",
-              instructions: "Take with food",
-              quantityPrescribed: 21,
-              quantityAvailable: 50,
-              quantityToDispense: 21,
-              verified: false,
-            },
-          ],
-        },
-        {
-          id: "2",
-          prescriptionNumber: "RX-2024-002",
-          patientName: "Bob Martinez",
-          patientId: "P002",
-          patientAge: 45,
-          patientPhone: "+1234567891",
-          doctorName: "Dr. Michael Chen",
-          doctorLicense: "MD-2024-002",
-          diagnosis: "Hypertension",
-          dateIssued: "2024-10-26",
-          priority: "urgent",
-          status: "pending",
-          notes:
-            "Patient needs immediate medication for blood pressure control",
-          medications: [
-            {
-              id: "m2",
-              drugName: "Lisinopril",
-              dosage: "10mg",
-              frequency: "Once daily",
-              duration: "30 days",
-              instructions: "Take in morning",
-              quantityPrescribed: 30,
-              quantityAvailable: 15,
-              quantityToDispense: 15,
-              verified: false,
-            },
-            {
-              id: "m3",
-              drugName: "Hydrochlorothiazide",
-              dosage: "25mg",
-              frequency: "Once daily",
-              duration: "30 days",
-              instructions: "Take with food",
-              quantityPrescribed: 30,
-              quantityAvailable: 30,
-              quantityToDispense: 30,
-              verified: false,
-            },
-          ],
-        },
-        {
-          id: "3",
-          prescriptionNumber: "RX-2024-003",
-          patientName: "Carol Davis",
-          patientId: "P003",
-          patientAge: 28,
-          patientPhone: "+1234567892",
-          doctorName: "Dr. Emily Rodriguez",
-          doctorLicense: "MD-2024-003",
-          diagnosis: "Migraine",
-          dateIssued: "2024-10-25",
-          priority: "normal",
-          status: "dispensing",
-          notes: "Regular patient, familiar with medication",
-          medications: [
-            {
-              id: "m4",
-              drugName: "Sumatriptan",
-              dosage: "50mg",
-              frequency: "As needed",
-              duration: "10 tablets",
-              instructions: "Take at onset of migraine",
-              quantityPrescribed: 10,
-              quantityAvailable: 10,
-              quantityToDispense: 10,
-              verified: true,
-            },
-          ],
-        },
-      ];
-
-      setPrescriptions(mockPrescriptions);
+      // Fetch pending prescriptions from API
+      const response = await fetch("/api/prescriptions/pending");
+      if (response.ok) {
+        const data = await response.json();
+        setPrescriptions(data.prescriptions || []);
+      } else {
+        showError("Failed to load pending prescriptions");
+      }
     } catch (error) {
       showError("Failed to load pending prescriptions");
     } finally {

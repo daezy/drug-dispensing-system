@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
+import { Web3Provider } from "@/components/Web3Provider";
 import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -37,29 +38,31 @@ export default function RootLayout({
         className={`${inter.className} antialiased min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50`}
       >
         <AuthProvider>
-          {children}
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: "#363636",
-                color: "#fff",
-              },
-              success: {
-                duration: 3000,
+          <Web3Provider>
+            {children}
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 4000,
                 style: {
-                  background: "#10b981",
+                  background: "#363636",
+                  color: "#fff",
                 },
-              },
-              error: {
-                duration: 5000,
-                style: {
-                  background: "#ef4444",
+                success: {
+                  duration: 3000,
+                  style: {
+                    background: "#10b981",
+                  },
                 },
-              },
-            }}
-          />
+                error: {
+                  duration: 5000,
+                  style: {
+                    background: "#ef4444",
+                  },
+                },
+              }}
+            />
+          </Web3Provider>
         </AuthProvider>
       </body>
     </html>

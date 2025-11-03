@@ -53,70 +53,14 @@ interface Appointment {
 export default function PatientDashboard() {
   const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>({
-    activePrescriptions: 3,
-    upcomingAppointments: 2,
-    completedOrders: 15,
-    healthScore: 85,
+    activePrescriptions: 0,
+    upcomingAppointments: 0,
+    completedOrders: 0,
+    healthScore: 0,
   });
 
-  const [prescriptions, setPrescriptions] = useState<Prescription[]>([
-    {
-      id: "1",
-      medication: "Metformin",
-      dosage: "500mg",
-      frequency: "Twice daily",
-      prescribedBy: "Dr. Sarah Johnson",
-      date: "2024-01-10",
-      status: "active",
-      refillsLeft: 2,
-      instructions: "Take with meals to reduce stomach upset",
-    },
-    {
-      id: "2",
-      medication: "Lisinopril",
-      dosage: "10mg",
-      frequency: "Once daily",
-      prescribedBy: "Dr. Michael Chen",
-      date: "2024-01-05",
-      status: "active",
-      refillsLeft: 5,
-      instructions: "Take at the same time each day",
-    },
-    {
-      id: "3",
-      medication: "Atorvastatin",
-      dosage: "20mg",
-      frequency: "Once daily at bedtime",
-      prescribedBy: "Dr. Sarah Johnson",
-      date: "2023-12-20",
-      status: "active",
-      refillsLeft: 1,
-      instructions: "Avoid grapefruit juice",
-    },
-  ]);
-
-  const [appointments, setAppointments] = useState<Appointment[]>([
-    {
-      id: "1",
-      doctor: "Dr. Sarah Johnson",
-      specialty: "Endocrinology",
-      date: "2024-01-18",
-      time: "10:00 AM",
-      type: "follow-up",
-      status: "upcoming",
-      location: "Medical Center - Room 205",
-    },
-    {
-      id: "2",
-      doctor: "Dr. Michael Chen",
-      specialty: "Cardiology",
-      date: "2024-01-25",
-      time: "2:30 PM",
-      type: "check-up",
-      status: "upcoming",
-      location: "Heart Clinic - Room 302",
-    },
-  ]);
+  const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
 
   const { user } = useAuth();
 

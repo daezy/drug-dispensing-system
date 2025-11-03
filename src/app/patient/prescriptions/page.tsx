@@ -69,89 +69,14 @@ export default function PatientPrescriptionsPage() {
     setIsLoading(true);
 
     try {
-      // Mock data - replace with actual API call
-      const mockPrescriptions: Prescription[] = [
-        {
-          id: "1",
-          doctorName: "Dr. Sarah Johnson",
-          doctorLicense: "MD-2024-001",
-          diagnosis: "Bacterial Infection",
-          notes:
-            "Complete the full course even if symptoms improve. Follow up in 1 week.",
-          dateIssued: "2024-10-25",
-          status: "dispensed",
-          pharmacyName: "City Health Pharmacy",
-          dispensedDate: "2024-10-25",
-          dispensedBy: "John Smith, PharmD",
-          medications: [
-            {
-              drugName: "Amoxicillin",
-              dosage: "500mg",
-              frequency: "3 times daily",
-              duration: "7 days",
-              instructions: "Take with food to reduce stomach upset",
-              quantity: 21,
-              dispensed: true,
-              dispensedQuantity: 21,
-            },
-          ],
-        },
-        {
-          id: "2",
-          doctorName: "Dr. Michael Chen",
-          doctorLicense: "MD-2024-002",
-          diagnosis: "Hypertension",
-          notes:
-            "Monitor blood pressure daily. Return for follow-up in 1 month.",
-          dateIssued: "2024-10-26",
-          status: "issued",
-          medications: [
-            {
-              drugName: "Lisinopril",
-              dosage: "10mg",
-              frequency: "Once daily",
-              duration: "30 days",
-              instructions:
-                "Take at the same time each day, preferably in the morning",
-              quantity: 30,
-              dispensed: false,
-            },
-            {
-              drugName: "Hydrochlorothiazide",
-              dosage: "25mg",
-              frequency: "Once daily",
-              duration: "30 days",
-              instructions: "Take with food or milk",
-              quantity: 30,
-              dispensed: false,
-            },
-          ],
-        },
-        {
-          id: "3",
-          doctorName: "Dr. Emily Rodriguez",
-          doctorLicense: "MD-2024-003",
-          diagnosis: "Seasonal Allergies",
-          notes:
-            "Use as needed for allergy symptoms. Avoid alcohol while taking.",
-          dateIssued: "2024-10-20",
-          status: "expired",
-          medications: [
-            {
-              drugName: "Cetirizine",
-              dosage: "10mg",
-              frequency: "Once daily",
-              duration: "5 days",
-              instructions: "Take in the evening to minimize drowsiness",
-              quantity: 5,
-              dispensed: true,
-              dispensedQuantity: 5,
-            },
-          ],
-        },
-      ];
-
-      setPrescriptions(mockPrescriptions);
+      // Fetch prescriptions from API
+      const response = await fetch("/api/prescriptions/patient");
+      if (response.ok) {
+        const data = await response.json();
+        setPrescriptions(data.prescriptions || []);
+      } else {
+        showError("Failed to load prescriptions");
+      }
     } catch (error) {
       showError("Failed to load prescriptions");
     } finally {

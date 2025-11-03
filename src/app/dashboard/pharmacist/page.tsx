@@ -55,107 +55,17 @@ interface InventoryItem {
 export default function PharmacistDashboard() {
   const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>({
-    pendingPrescriptions: 15,
-    lowStockItems: 8,
-    ordersToday: 42,
-    totalInventory: 1247,
+    pendingPrescriptions: 0,
+    lowStockItems: 0,
+    ordersToday: 0,
+    totalInventory: 0,
   });
 
   const [pendingPrescriptions, setPendingPrescriptions] = useState<
     PendingPrescription[]
-  >([
-    {
-      id: "1",
-      patientName: "Sarah Johnson",
-      medication: "Metformin",
-      dosage: "500mg",
-      quantity: 60,
-      prescribedBy: "Dr. Smith",
-      date: "2024-01-16",
-      urgency: "normal",
-      status: "pending",
-    },
-    {
-      id: "2",
-      patientName: "Mike Chen",
-      medication: "Lisinopril",
-      dosage: "10mg",
-      quantity: 30,
-      prescribedBy: "Dr. Johnson",
-      date: "2024-01-16",
-      urgency: "urgent",
-      status: "preparing",
-    },
-    {
-      id: "3",
-      patientName: "Emily Davis",
-      medication: "Albuterol Inhaler",
-      dosage: "90mcg",
-      quantity: 1,
-      prescribedBy: "Dr. Wilson",
-      date: "2024-01-16",
-      urgency: "critical",
-      status: "pending",
-    },
-    {
-      id: "4",
-      patientName: "Robert Wilson",
-      medication: "Atorvastatin",
-      dosage: "20mg",
-      quantity: 90,
-      prescribedBy: "Dr. Smith",
-      date: "2024-01-15",
-      urgency: "normal",
-      status: "ready",
-    },
-  ]);
+  >([]);
 
-  const [lowStockItems, setLowStockItems] = useState<InventoryItem[]>([
-    {
-      id: "1",
-      medication: "Metformin",
-      brand: "Glucophage",
-      currentStock: 45,
-      minimumStock: 100,
-      unitPrice: 0.25,
-      expiryDate: "2025-06-15",
-      supplier: "MedSupply Co.",
-      status: "low-stock",
-    },
-    {
-      id: "2",
-      medication: "Albuterol",
-      brand: "ProAir",
-      currentStock: 8,
-      minimumStock: 25,
-      unitPrice: 15.5,
-      expiryDate: "2024-12-20",
-      supplier: "RespiraCare",
-      status: "low-stock",
-    },
-    {
-      id: "3",
-      medication: "Insulin Glargine",
-      brand: "Lantus",
-      currentStock: 0,
-      minimumStock: 15,
-      unitPrice: 89.99,
-      expiryDate: "2024-08-30",
-      supplier: "DiabetesCare Inc.",
-      status: "out-of-stock",
-    },
-    {
-      id: "4",
-      medication: "Amoxicillin",
-      brand: "Generic",
-      currentStock: 125,
-      minimumStock: 200,
-      unitPrice: 0.15,
-      expiryDate: "2024-03-10",
-      supplier: "PharmaCorp",
-      status: "expired",
-    },
-  ]);
+  const [lowStockItems, setLowStockItems] = useState<InventoryItem[]>([]);
 
   const { user } = useAuth();
 
