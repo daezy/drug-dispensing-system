@@ -27,6 +27,11 @@ export function Web3Provider({ children }: { children: ReactNode }) {
         QueryClientProvider = queryModule.QueryClientProvider;
         wagmiConfig = configModule.wagmiConfig;
 
+        // Initialize Web3Modal after loading the config
+        if (configModule.initializeWeb3Modal) {
+          configModule.initializeWeb3Modal();
+        }
+
         setWeb3Loaded(true);
       } catch (error) {
         console.warn("Web3 features unavailable:", error);

@@ -31,24 +31,26 @@ export const wagmiConfig = defaultWagmiConfig({
 
 // Create modal - initialize once
 let modalInitialized = false;
+let modal: any = null;
 
 export function initializeWeb3Modal() {
   if (typeof window !== "undefined" && !modalInitialized) {
     try {
-      createWeb3Modal({
+      modal = createWeb3Modal({
         wagmiConfig,
         projectId,
         enableAnalytics: false,
         enableOnramp: false,
       });
       modalInitialized = true;
+      console.log("✅ Web3Modal initialized successfully");
     } catch (error) {
-      console.error("Error initializing Web3Modal:", error);
+      console.error("❌ Error initializing Web3Modal:", error);
     }
   }
+  return modal;
 }
 
-// Auto-initialize
-if (typeof window !== "undefined") {
-  initializeWeb3Modal();
+export function getWeb3Modal() {
+  return modal;
 }
