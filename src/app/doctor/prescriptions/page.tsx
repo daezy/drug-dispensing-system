@@ -20,6 +20,9 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useAuth } from "@/lib/auth-context";
 import { showSuccess, showError, API_MESSAGES } from "@/lib/utils/toast-helper";
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
+
 interface Prescription {
   id: string;
   patientName: string;
