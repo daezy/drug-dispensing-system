@@ -15,10 +15,13 @@ import {
   Star,
   MapPin,
   FileText,
+  Copy,
+  Check,
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/lib/auth-context";
+import { showSuccess } from "@/lib/utils/toast-helper";
 
 interface DashboardStats {
   activePrescriptions: number;
@@ -47,8 +50,22 @@ export default function PatientDashboard() {
   });
 
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
+  const [copiedPatientId, setCopiedPatientId] = useState(false);
 
   const { user } = useAuth();
+
+  const copyPatientId = async () => {
+    if (user?.patientId) {
+      try {
+        await navigator.clipboard.writeText(user.patientId);
+        setCopiedPatientId(true);
+        showSuccess("Patient ID copied to clipboard!");
+        setTimeout(() => setCopiedPatientId(false), 2000);
+      } catch (error) {
+        console.error("Failed to copy:", error);
+      }
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -95,10 +112,19 @@ export default function PatientDashboard() {
                       Active Patient
                     </div>
                     {user?.patientId && (
-                      <div className="inline-flex items-center px-3 py-1 bg-white bg-opacity-30 backdrop-blur-sm rounded-full text-sm font-mono font-semibold">
+                      <button
+                        onClick={copyPatientId}
+                        className="inline-flex items-center px-3 py-1 bg-white bg-opacity-30 backdrop-blur-sm rounded-full text-sm font-mono font-semibold hover:bg-opacity-40 transition-all group cursor-pointer"
+                        title="Click to copy Patient ID"
+                      >
                         <FileText className="mr-2" size={14} />
                         {user.patientId}
-                      </div>
+                        {copiedPatientId ? (
+                          <Check className="ml-2 text-green-300" size={14} />
+                        ) : (
+                          <Copy className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity" size={14} />
+                        )}
+                      </button>
                     )}
                   </div>
                   <h1 className="text-3xl md:text-4xl font-bold mb-2">
