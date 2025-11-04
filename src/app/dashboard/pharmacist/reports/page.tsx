@@ -26,7 +26,7 @@ export default function ReportsPage() {
 
   const fetchReports = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("auth_token");
 
       // Fetch summary
       const summaryResponse = await fetch("/api/drugs/reports?type=summary", {
@@ -57,7 +57,7 @@ export default function ReportsPage() {
 
   const exportReport = async (reportType: string, filename: string) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("auth_token");
       const response = await fetch(`/api/drugs/reports?type=${reportType}`, {
         headers: { Authorization: `Bearer ${token}` },
       });

@@ -56,7 +56,18 @@ export default function PharmacistPatientsPage() {
   const loadPatients = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/pharmacists/patients");
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        console.error("No authentication token found");
+        router.push("/login");
+        return;
+      }
+
+      const response = await fetch("/api/pharmacists/patients", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setPatients(data.patients || []);

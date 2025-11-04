@@ -43,7 +43,7 @@ export default function InventoryPage() {
 
   const fetchDrugs = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("auth_token");
       const response = await fetch("/api/drugs", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -62,7 +62,7 @@ export default function InventoryPage() {
 
   const fetchAlerts = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("auth_token");
       const response = await fetch("/api/drugs/alerts?type=all", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -86,7 +86,7 @@ export default function InventoryPage() {
     if (!confirm("Are you sure you want to delete this drug?")) return;
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("auth_token");
       const response = await fetch(`/api/drugs?id=${drugId}`, {
         method: "DELETE",
         headers: {
@@ -105,7 +105,7 @@ export default function InventoryPage() {
 
   const handleExportReport = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("auth_token");
       const response = await fetch("/api/drugs/reports?type=summary", {
         headers: {
           Authorization: `Bearer ${token}`,

@@ -73,13 +73,27 @@ export default function PharmacistPrescriptionsPage() {
   const loadPrescriptions = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/prescriptions/pharmacist");
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        showError("Please log in again");
+        router.push("/login");
+        return;
+      }
+
+      const response = await fetch("/api/prescriptions/pharmacist", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setPrescriptions(data.prescriptions || []);
+      } else {
+        showError("Failed to load prescriptions");
       }
     } catch (error) {
       console.error("Failed to load prescriptions:", error);
+      showError("Failed to load prescriptions");
     } finally {
       setIsLoading(false);
     }
