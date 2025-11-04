@@ -1,6 +1,7 @@
 # Pharmacist Flow - Complete Testing Guide
 
 ## Overview
+
 The pharmacist flow allows pharmacists to view, verify, and dispense prescriptions created by doctors. This includes inventory management, prescription verification, and blockchain-recorded dispensing.
 
 ---
@@ -8,11 +9,13 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 ## Prerequisites
 
 ### 1. User Accounts Required
+
 - **Pharmacist Account**: Email with role set to "pharmacist"
 - **Doctor Account**: To create test prescriptions
 - **Patient Account**: To link prescriptions to
 
 ### 2. Database Setup
+
 - Pharmacist profile must be linked to user account
 - Drugs must exist in inventory
 - Prescriptions must be in "verified" or "pending" status
@@ -22,6 +25,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 ## Pharmacist Dashboard Features
 
 ### Dashboard Components:
+
 1. **Pending Prescriptions** - Prescriptions awaiting dispensing
 2. **Inventory Management** - View and manage drug stock
 3. **Low Stock Alerts** - Items below minimum threshold
@@ -35,6 +39,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 ### Phase 1: Login as Pharmacist
 
 1. **Navigate to Login Page**
+
    ```
    http://localhost:3002
    ```
@@ -42,6 +47,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 2. **Select Role**: Pharmacist
 
 3. **Enter Credentials**:
+
    - Email: `pharmacist@example.com`
    - Password: Your password
 
@@ -54,14 +60,17 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 ### Phase 2: View Pending Prescriptions
 
 #### API Endpoint: `/api/prescriptions/pharmacist`
+
 **Method**: GET
 
 **Authentication**: Required (JWT token with pharmacist role)
 
 **Query Parameters**:
+
 - `status` (optional): Filter by status (verified, pending, dispensed)
 
 **Response Format**:
+
 ```json
 {
   "success": true,
@@ -100,6 +109,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 ```
 
 **Testing Steps**:
+
 1. Go to `/dashboard/pharmacist/prescriptions`
 2. Should see list of prescriptions
 3. Filter by status: All, Pending, Verified, Dispensed
@@ -110,6 +120,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 ### Phase 3: View Prescription Details
 
 **Features to Test**:
+
 1. Click "View Details" on any prescription
 2. Modal should show:
    - Prescription number
@@ -121,6 +132,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
    - Transaction hash (if available)
 
 **Expected Data**:
+
 - ✅ Patient allergies highlighted (important for safety)
 - ✅ Drug interactions warnings (if implemented)
 - ✅ Insurance information for billing
@@ -131,11 +143,13 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 ### Phase 4: Dispense Prescription
 
 #### API Endpoint: `/api/prescriptions/dispense`
+
 **Method**: POST
 
 **Authentication**: Required (pharmacist role only)
 
 **Request Body**:
+
 ```json
 {
   "prescriptionId": "prescription_id",
@@ -145,6 +159,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 ```
 
 **Business Logic**:
+
 1. **Status Check**: Prescription must be "verified" (not "pending" or already "dispensed")
 2. **Stock Check**: Verify sufficient drug quantity in inventory
 3. **Expiry Check**: Ensure drug is not expired
@@ -153,6 +168,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 6. **Update Status**: Change prescription status to "dispensed"
 
 **Response Format**:
+
 ```json
 {
   "success": true,
@@ -180,17 +196,21 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 **Testing Steps**:
 
 1. **Select Verified Prescription**:
+
    - Only prescriptions with status "verified" can be dispensed
    - Status "pending" → needs doctor/system verification first
 
 2. **Click "Dispense" Button**:
+
    - Modal opens with dispensing form
 
 3. **Fill Dispensing Form**:
+
    - Quantity (default: prescribed amount)
    - Notes (optional): Counseling provided, substitutions made, etc.
 
 4. **Submit**:
+
    - Click "Confirm Dispensing"
 
 5. **Expected Results**:
@@ -205,6 +225,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 **Error Scenarios to Test**:
 
 ❌ **Insufficient Stock**:
+
 ```json
 {
   "error": "Insufficient stock",
@@ -214,6 +235,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 ```
 
 ❌ **Already Dispensed**:
+
 ```json
 {
   "error": "Prescription already dispensed"
@@ -221,6 +243,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 ```
 
 ❌ **Not Verified**:
+
 ```json
 {
   "error": "Prescription must be verified before dispensing"
@@ -228,6 +251,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 ```
 
 ❌ **Expired Drug**:
+
 ```json
 {
   "error": "Cannot dispense expired drug"
@@ -241,6 +265,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 #### View Inventory: `/dashboard/pharmacist/inventory`
 
 **Features**:
+
 1. View all drugs in inventory
 2. See current stock levels
 3. Low stock alerts (below minimum threshold)
@@ -255,6 +280,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 **Method**: POST
 
 **Request Body**:
+
 ```json
 {
   "name": "Amoxicillin",
@@ -265,7 +291,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
   "batch_number": "BATCH123",
   "expiry_date": "2026-12-31",
   "stock_quantity": 1000,
-  "unit_price": 0.50,
+  "unit_price": 0.5,
   "supplier": "MedSupply Inc",
   "requires_prescription": true,
   "storage_requirements": "Store at room temperature"
@@ -273,6 +299,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 ```
 
 **Testing Steps**:
+
 1. Go to `/dashboard/pharmacist/inventory`
 2. Click "Add New Drug"
 3. Fill in all required fields
@@ -285,6 +312,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 **Method**: PUT
 
 **Request Body**:
+
 ```json
 {
   "stock_quantity": 1500,
@@ -299,18 +327,22 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 #### View Reports: `/dashboard/pharmacist/reports`
 
 **Available Reports**:
+
 1. **Dispensing History**
+
    - Date range filter
    - Patient-wise breakdown
    - Drug-wise breakdown
 
 2. **Inventory Reports**
+
    - Current stock levels
    - Low stock items
    - Expiring items
    - Stock value
 
 3. **Compliance Reports**
+
    - Controlled substances tracking
    - Prescription verification status
    - Blockchain verification status
@@ -325,36 +357,46 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 ## Common Issues and Solutions
 
 ### Issue 1: "Unauthorized" Error
+
 **Cause**: Not logged in as pharmacist or token expired
-**Solution**: 
+**Solution**:
+
 1. Verify role is set to "pharmacist"
 2. Check localStorage for `auth_token`
 3. Re-login if token expired
 
 ### Issue 2: No Prescriptions Showing
+
 **Cause**: No verified prescriptions in database
 **Solution**:
+
 1. Create prescriptions as doctor first
 2. Verify prescription status is "verified" or "pending"
 3. Check API response in browser console
 
 ### Issue 3: Cannot Dispense
+
 **Cause**: Prescription not in "verified" status
 **Solution**:
+
 1. Prescription must be verified first
 2. Check prescription status in database
 3. Update status to "verified" if needed
 
 ### Issue 4: Stock Deduction Not Working
+
 **Cause**: Drug not found or insufficient permissions
 **Solution**:
+
 1. Verify drug exists in inventory
 2. Check stock_quantity field
 3. Ensure pharmacist has proper role permissions
 
 ### Issue 5: Blockchain Hash Not Showing
+
 **Cause**: Blockchain service not recording properly
 **Solution**:
+
 1. Check debug logs in console
 2. Verify BlockchainService is initialized
 3. Check if transaction was recorded
@@ -364,6 +406,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 ## Testing Checklist
 
 ### Basic Flow
+
 - [ ] Login as pharmacist
 - [ ] View dashboard with stats
 - [ ] See pending prescriptions list
@@ -374,6 +417,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 - [ ] View blockchain verification
 
 ### Dispensing Flow
+
 - [ ] Select verified prescription
 - [ ] Open dispense modal
 - [ ] Fill quantity and notes
@@ -384,6 +428,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 - [ ] See blockchain transaction hash
 
 ### Inventory Management
+
 - [ ] View inventory list
 - [ ] See low stock alerts
 - [ ] See expiring items
@@ -392,6 +437,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 - [ ] View transaction history
 
 ### Reports
+
 - [ ] Generate dispensing report
 - [ ] Export to CSV
 - [ ] Export to PDF
@@ -399,6 +445,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 - [ ] View compliance report
 
 ### Error Handling
+
 - [ ] Try dispensing with insufficient stock
 - [ ] Try dispensing already dispensed prescription
 - [ ] Try dispensing unverified prescription
@@ -409,22 +456,23 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 
 ## API Endpoints Summary
 
-| Endpoint | Method | Purpose | Auth |
-|----------|--------|---------|------|
-| `/api/prescriptions/pharmacist` | GET | List prescriptions | Pharmacist |
-| `/api/prescriptions/dispense` | POST | Dispense prescription | Pharmacist |
-| `/api/drugs` | GET | List inventory | Pharmacist |
-| `/api/drugs` | POST | Add drug | Pharmacist |
-| `/api/drugs/[id]` | PUT | Update drug | Pharmacist |
-| `/api/drugs/alerts` | GET | Low stock alerts | Pharmacist |
-| `/api/reporting/dispensed` | GET | Dispensing report | Pharmacist |
-| `/api/reporting/stock` | GET | Stock report | Pharmacist |
+| Endpoint                        | Method | Purpose               | Auth       |
+| ------------------------------- | ------ | --------------------- | ---------- |
+| `/api/prescriptions/pharmacist` | GET    | List prescriptions    | Pharmacist |
+| `/api/prescriptions/dispense`   | POST   | Dispense prescription | Pharmacist |
+| `/api/drugs`                    | GET    | List inventory        | Pharmacist |
+| `/api/drugs`                    | POST   | Add drug              | Pharmacist |
+| `/api/drugs/[id]`               | PUT    | Update drug           | Pharmacist |
+| `/api/drugs/alerts`             | GET    | Low stock alerts      | Pharmacist |
+| `/api/reporting/dispensed`      | GET    | Dispensing report     | Pharmacist |
+| `/api/reporting/stock`          | GET    | Stock report          | Pharmacist |
 
 ---
 
 ## Database Schema Reference
 
 ### Prescription Status Flow:
+
 1. **pending** - Created by doctor, awaiting verification
 2. **verified** - Verified and ready for dispensing
 3. **dispensed** - Dispensed to patient
@@ -432,6 +480,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 5. **expired** - Past validity period
 
 ### Key Fields to Monitor:
+
 - `status` - Current prescription status
 - `quantity_prescribed` - Amount prescribed
 - `quantity_dispensed` - Amount actually dispensed
@@ -444,6 +493,7 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
 ## Next Steps
 
 1. **Test the Complete Flow**:
+
    - Create prescription as doctor
    - Login as pharmacist
    - Verify and dispense prescription
@@ -451,12 +501,14 @@ The pharmacist flow allows pharmacists to view, verify, and dispense prescriptio
    - Verify blockchain recording
 
 2. **Check Integration Points**:
+
    - Prescription → Patient linking
    - Inventory → Drug deduction
    - Blockchain → Transaction recording
    - Reporting → Data accuracy
 
 3. **Debug Issues**:
+
    - Check browser console for errors
    - Review API responses
    - Verify database records

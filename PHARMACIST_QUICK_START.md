@@ -3,6 +3,7 @@
 ## 🚀 Quick Setup (5 minutes)
 
 ### Step 1: Create Test Data
+
 ```bash
 # You need:
 1. Pharmacist account (email: pharmacist@test.com)
@@ -12,6 +13,7 @@
 ```
 
 ### Step 2: Login as Pharmacist
+
 ```
 URL: http://localhost:3002
 Role: Pharmacist
@@ -20,6 +22,7 @@ Password: your-password
 ```
 
 ### Step 3: Access Dashboard
+
 ```
 Automatically redirected to: /dashboard/pharmacist
 ```
@@ -28,13 +31,13 @@ Automatically redirected to: /dashboard/pharmacist
 
 ## 📋 Key Pages
 
-| Page | URL | Purpose |
-|------|-----|---------|
-| Dashboard | `/dashboard/pharmacist` | Overview & stats |
-| Prescriptions | `/dashboard/pharmacist/prescriptions` | View & dispense |
-| Inventory | `/dashboard/pharmacist/inventory` | Manage drugs |
-| Reports | `/dashboard/pharmacist/reports` | Analytics |
-| Patients | `/dashboard/pharmacist/patients` | Patient history |
+| Page          | URL                                   | Purpose          |
+| ------------- | ------------------------------------- | ---------------- |
+| Dashboard     | `/dashboard/pharmacist`               | Overview & stats |
+| Prescriptions | `/dashboard/pharmacist/prescriptions` | View & dispense  |
+| Inventory     | `/dashboard/pharmacist/inventory`     | Manage drugs     |
+| Reports       | `/dashboard/pharmacist/reports`       | Analytics        |
+| Patients      | `/dashboard/pharmacist/patients`      | Patient history  |
 
 ---
 
@@ -49,6 +52,7 @@ pending → verified → dispensed
 ```
 
 ### Status Meanings:
+
 - **pending**: Just created, needs verification
 - **verified**: Approved, ready to dispense
 - **dispensed**: Given to patient ✅
@@ -60,6 +64,7 @@ pending → verified → dispensed
 ## 💊 Dispense Prescription Workflow
 
 ### Quick Steps:
+
 1. **View Prescriptions** → `/dashboard/pharmacist/prescriptions`
 2. **Filter by Status** → Select "Verified"
 3. **Click Prescription** → View details
@@ -70,6 +75,7 @@ pending → verified → dispensed
 8. **Confirm** → Dispenses and updates inventory
 
 ### What Happens Automatically:
+
 - ✅ Inventory reduced by quantity dispensed
 - ✅ Blockchain transaction recorded
 - ✅ Status changed to "dispensed"
@@ -81,6 +87,7 @@ pending → verified → dispensed
 ## 🔍 Important Checks Before Dispensing
 
 ### Safety Checks:
+
 - [ ] Prescription is **verified** (not pending)
 - [ ] Sufficient **stock** available
 - [ ] Drug is **not expired**
@@ -89,6 +96,7 @@ pending → verified → dispensed
 - [ ] Confirm **patient identity**
 
 ### System Checks (Automatic):
+
 - Stock quantity validation
 - Expiry date verification
 - Prescription status check
@@ -99,6 +107,7 @@ pending → verified → dispensed
 ## 📊 API Endpoints
 
 ### Get Prescriptions
+
 ```javascript
 GET /api/prescriptions/pharmacist
 Headers: { Authorization: `Bearer ${token}` }
@@ -106,9 +115,10 @@ Query: ?status=verified (optional)
 ```
 
 ### Dispense Prescription
+
 ```javascript
 POST /api/prescriptions/dispense
-Headers: { 
+Headers: {
   Authorization: `Bearer ${token}`,
   Content-Type: "application/json"
 }
@@ -120,9 +130,12 @@ Body: {
 ```
 
 ### Get Inventory
+
 ```javascript
-GET /api/drugs
-Headers: { Authorization: `Bearer ${token}` }
+GET / api / drugs;
+Headers: {
+  Authorization: `Bearer ${token}`;
+}
 ```
 
 ---
@@ -130,24 +143,28 @@ Headers: { Authorization: `Bearer ${token}` }
 ## ⚠️ Common Errors & Solutions
 
 ### "Unauthorized" Error
+
 ```
 Problem: Token expired or missing
 Solution: Re-login and try again
 ```
 
 ### "Prescription must be verified before dispensing"
+
 ```
 Problem: Status is "pending" not "verified"
 Solution: Prescription needs verification first
 ```
 
 ### "Insufficient stock"
+
 ```
 Problem: Not enough drugs in inventory
 Solution: Update inventory or order more stock
 ```
 
 ### "Cannot dispense expired drug"
+
 ```
 Problem: Drug past expiry date
 Solution: Remove expired stock, order new batch
@@ -158,6 +175,7 @@ Solution: Remove expired stock, order new batch
 ## 🎯 Testing Checklist
 
 ### Basic Operations
+
 - [ ] Login as pharmacist
 - [ ] View dashboard
 - [ ] See pending prescriptions count
@@ -166,6 +184,7 @@ Solution: Remove expired stock, order new batch
 - [ ] Search prescriptions
 
 ### Dispensing
+
 - [ ] Open prescription details
 - [ ] Check patient allergies
 - [ ] Click dispense button
@@ -176,6 +195,7 @@ Solution: Remove expired stock, order new batch
 - [ ] Check blockchain hash displayed
 
 ### Inventory
+
 - [ ] View inventory list
 - [ ] See low stock alerts
 - [ ] Add new drug
@@ -183,6 +203,7 @@ Solution: Remove expired stock, order new batch
 - [ ] View transaction history
 
 ### Reports
+
 - [ ] Generate dispensing report
 - [ ] Export to CSV
 - [ ] View by date range
@@ -192,17 +213,19 @@ Solution: Remove expired stock, order new batch
 ## 🔐 Authentication
 
 ### Token Storage
+
 ```javascript
 // Token saved in localStorage
 const token = localStorage.getItem("auth_token");
 
 // Include in all API requests
 headers: {
-  Authorization: `Bearer ${token}`
+  Authorization: `Bearer ${token}`;
 }
 ```
 
 ### Token Expiry
+
 - Tokens expire after 24 hours
 - Re-login required if expired
 - Automatic redirect to login page
@@ -212,6 +235,7 @@ headers: {
 ## 📱 Mobile Responsiveness
 
 All pharmacist pages are mobile-friendly:
+
 - ✅ Responsive tables
 - ✅ Touch-friendly buttons
 - ✅ Optimized for tablets
@@ -222,6 +246,7 @@ All pharmacist pages are mobile-friendly:
 ## 🎨 UI Components
 
 ### Prescription Card
+
 ```
 ┌─────────────────────────────────┐
 │ RX5E009AB3          [Verified]  │
@@ -233,6 +258,7 @@ All pharmacist pages are mobile-friendly:
 ```
 
 ### Status Badges
+
 - 🟡 Pending (Yellow)
 - 🔵 Verified (Blue)
 - 🟢 Dispensed (Green)
@@ -244,6 +270,7 @@ All pharmacist pages are mobile-friendly:
 ## 🚨 Emergency Procedures
 
 ### Urgent Prescription
+
 ```
 1. Look for [URGENT] tag
 2. Prioritize in queue
@@ -253,6 +280,7 @@ All pharmacist pages are mobile-friendly:
 ```
 
 ### Stock Out
+
 ```
 1. Check alternative suppliers
 2. Contact ordering department
@@ -262,6 +290,7 @@ All pharmacist pages are mobile-friendly:
 ```
 
 ### System Down
+
 ```
 1. Document manually
 2. Patient ID + Prescription details
@@ -274,12 +303,14 @@ All pharmacist pages are mobile-friendly:
 ## 📞 Support
 
 ### Technical Issues
+
 - Check browser console for errors
 - Verify network connectivity
 - Clear cache and cookies
 - Try different browser
 
 ### Business Questions
+
 - Refer to `PHARMACIST_FLOW_GUIDE.md`
 - Check `TESTING_GUIDE.md`
 - Review `REPORTING_COMPLIANCE_MODULE.md`
