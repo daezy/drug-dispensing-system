@@ -320,7 +320,9 @@ export default function PharmacistPrescriptionsPage() {
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4" />
                           <span>
-                            {new Date(prescription.dateIssued).toLocaleDateString()}
+                            {new Date(
+                              prescription.dateIssued
+                            ).toLocaleDateString()}
                           </span>
                         </div>
                       </div>
@@ -348,10 +350,12 @@ export default function PharmacistPrescriptionsPage() {
                           {prescription.medication}
                         </p>
                         <p className="text-xs text-blue-700 dark:text-blue-400">
-                          {prescription.dosage} - {prescription.dosageForm || "N/A"}
+                          {prescription.dosage} -{" "}
+                          {prescription.dosageForm || "N/A"}
                         </p>
                         <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                          Qty: {prescription.quantity} | {prescription.frequency} | {prescription.duration}
+                          Qty: {prescription.quantity} |{" "}
+                          {prescription.frequency} | {prescription.duration}
                         </p>
                       </div>
                     </div>
@@ -415,11 +419,13 @@ export default function PharmacistPrescriptionsPage() {
                         {selectedPrescription.patient.email}
                       </p>
                     )}
-                    {selectedPrescription.patient?.allergies && selectedPrescription.patient.allergies.length > 0 && (
-                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-                        Allergies: {selectedPrescription.patient.allergies.join(", ")}
-                      </p>
-                    )}
+                    {selectedPrescription.patient?.allergies &&
+                      selectedPrescription.patient.allergies.length > 0 && (
+                        <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                          Allergies:{" "}
+                          {selectedPrescription.patient.allergies.join(", ")}
+                        </p>
+                      )}
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
@@ -444,7 +450,9 @@ export default function PharmacistPrescriptionsPage() {
                       Prescription Date
                     </h3>
                     <p className="text-gray-900 dark:text-white">
-                      {new Date(selectedPrescription.dateIssued).toLocaleDateString()}
+                      {new Date(
+                        selectedPrescription.dateIssued
+                      ).toLocaleDateString()}
                     </p>
                   </div>
                   <div>
@@ -475,29 +483,51 @@ export default function PharmacistPrescriptionsPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">Dosage:</span>{" "}
-                        <span className="text-gray-900 dark:text-white">{selectedPrescription.dosage}</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                          Dosage:
+                        </span>{" "}
+                        <span className="text-gray-900 dark:text-white">
+                          {selectedPrescription.dosage}
+                        </span>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">Form:</span>{" "}
-                        <span className="text-gray-900 dark:text-white">{selectedPrescription.dosageForm || "N/A"}</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                          Form:
+                        </span>{" "}
+                        <span className="text-gray-900 dark:text-white">
+                          {selectedPrescription.dosageForm || "N/A"}
+                        </span>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">Quantity:</span>{" "}
-                        <span className="text-gray-900 dark:text-white">{selectedPrescription.quantity}</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                          Quantity:
+                        </span>{" "}
+                        <span className="text-gray-900 dark:text-white">
+                          {selectedPrescription.quantity}
+                        </span>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">Frequency:</span>{" "}
-                        <span className="text-gray-900 dark:text-white">{selectedPrescription.frequency}</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                          Frequency:
+                        </span>{" "}
+                        <span className="text-gray-900 dark:text-white">
+                          {selectedPrescription.frequency}
+                        </span>
                       </div>
                       <div className="col-span-2">
-                        <span className="font-medium text-gray-700 dark:text-gray-300">Duration:</span>{" "}
-                        <span className="text-gray-900 dark:text-white">{selectedPrescription.duration}</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                          Duration:
+                        </span>{" "}
+                        <span className="text-gray-900 dark:text-white">
+                          {selectedPrescription.duration}
+                        </span>
                       </div>
                     </div>
                     {selectedPrescription.instructions && (
                       <div className="pt-2 border-t border-blue-200 dark:border-blue-800">
-                        <span className="font-medium text-gray-700 dark:text-gray-300">Instructions:</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                          Instructions:
+                        </span>
                         <p className="text-gray-900 dark:text-white mt-1">
                           {selectedPrescription.instructions}
                         </p>
@@ -516,7 +546,9 @@ export default function PharmacistPrescriptionsPage() {
                       {selectedPrescription.dateDispensed && (
                         <p>
                           <span className="font-medium">Date:</span>{" "}
-                          {new Date(selectedPrescription.dateDispensed).toLocaleString()}
+                          {new Date(
+                            selectedPrescription.dateDispensed
+                          ).toLocaleString()}
                         </p>
                       )}
                       {selectedPrescription.pharmacist && (
@@ -535,7 +567,9 @@ export default function PharmacistPrescriptionsPage() {
                       )}
                       {selectedPrescription.dispensedQuantity && (
                         <p>
-                          <span className="font-medium">Quantity Dispensed:</span>{" "}
+                          <span className="font-medium">
+                            Quantity Dispensed:
+                          </span>{" "}
                           {selectedPrescription.dispensedQuantity}
                         </p>
                       )}

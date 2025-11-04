@@ -23,14 +23,32 @@ export interface Doctor {
   user?: User;
 }
 
+export interface Pharmacy {
+  pharmacy_id: number;
+  name: string;
+  license_number: string;
+  address: string;
+  city: string;
+  state: string;
+  zip_code: string;
+  phone: string;
+  email?: string;
+  operating_hours?: string;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
 export interface Pharmacist {
   pharmacist_id: number;
   user_id: number;
+  pharmacy_id?: number; // Link to pharmacy
   license_number: string;
-  pharmacy_name?: string;
+  pharmacy_name?: string; // Deprecated - use pharmacy.name
   contact_info?: ContactInfo;
   verification_status: "pending" | "verified" | "rejected";
   user?: User;
+  pharmacy?: Pharmacy; // Related pharmacy
 }
 
 export interface Patient {
@@ -47,6 +65,7 @@ export interface Patient {
 
 export interface Drug {
   drug_id: number;
+  pharmacy_id?: number; // Link to pharmacy - drugs are pharmacy-specific
   name: string;
   generic_name?: string;
   dosage_form:
@@ -76,6 +95,7 @@ export interface Drug {
   onchain_drug_id?: number;
   created_at: Date;
   updated_at: Date;
+  pharmacy?: Pharmacy; // Related pharmacy
 }
 
 export interface Prescription {
@@ -83,6 +103,7 @@ export interface Prescription {
   patient_id: number;
   doctor_id: number;
   drug_id: number;
+  pharmacy_id?: number; // Target pharmacy for dispensing
   pharmacist_id?: number;
   quantity_prescribed: number;
   quantity_dispensed: number;

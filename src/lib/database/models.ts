@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import {
   User,
   Doctor,
+  Pharmacy,
   Pharmacist,
   Patient,
   Drug,
@@ -96,6 +97,65 @@ const userSchema = new mongoose.Schema<User>(
   }
 );
 
+// Pharmacy Schema
+const pharmacySchema = new mongoose.Schema<Pharmacy>(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 200,
+    },
+    license_number: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+    address: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    city: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    state: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    zip_code: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+    },
+    operating_hours: {
+      type: String,
+      trim: true,
+    },
+    is_active: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  {
+    timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
+  }
+);
+
 // Doctor Schema
 const doctorSchema = new mongoose.Schema<Doctor>(
   {
@@ -140,6 +200,10 @@ const pharmacistSchema = new mongoose.Schema<Pharmacist>(
       ref: "User",
       required: true,
       unique: true,
+    },
+    pharmacy_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Pharmacy",
     },
     license_number: {
       type: String,
@@ -216,6 +280,10 @@ const patientSchema = new mongoose.Schema<Patient>(
 // Drug Schema
 const drugSchema = new mongoose.Schema<Drug>(
   {
+    pharmacy_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Pharmacy",
+    },
     name: {
       type: String,
       required: true,
@@ -335,6 +403,10 @@ const prescriptionSchema = new mongoose.Schema<Prescription>(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Drug",
       required: true,
+    },
+    pharmacy_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Pharmacy",
     },
     pharmacist_id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -597,6 +669,9 @@ notificationSchema.index({ is_read: 1 });
 // Create and export models
 export const UserModel =
   mongoose.models.User || mongoose.model<User>("User", userSchema);
+export const PharmacyModel =
+  mongoose.models.Pharmacy ||
+  mongoose.model<Pharmacy>("Pharmacy", pharmacySchema);
 export const DoctorModel =
   mongoose.models.Doctor || mongoose.model<Doctor>("Doctor", doctorSchema);
 export const PharmacistModel =
@@ -634,6 +709,7 @@ export const BlockchainConfigModel =
 // Export all models as a single object
 export const Models = {
   User: UserModel,
+  Pharmacy: PharmacyModel,
   Doctor: DoctorModel,
   Pharmacist: PharmacistModel,
   Patient: PatientModel,
