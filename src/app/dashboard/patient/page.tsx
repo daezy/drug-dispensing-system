@@ -122,7 +122,10 @@ export default function PatientDashboard() {
                         {copiedPatientId ? (
                           <Check className="ml-2 text-green-300" size={14} />
                         ) : (
-                          <Copy className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity" size={14} />
+                          <Copy
+                            className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                            size={14}
+                          />
                         )}
                       </button>
                     )}

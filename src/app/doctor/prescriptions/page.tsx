@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Upload,
   Pill,
@@ -57,6 +57,7 @@ interface Patient {
 export default function DoctorPrescriptionPage() {
   const { user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [showNewPrescription, setShowNewPrescription] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -96,6 +97,34 @@ export default function DoctorPrescriptionPage() {
     }
     loadData();
   }, [user, router]);
+
+  // Check for pre-selected patient from URL params
+  useEffect(() => {
+    if (!searchParams) return;
+    
+    const patientId = searchParams.get("patientId");
+    const patientName = searchParams.get("patientName");
+    const patientEmail = searchParams.get("patientEmail");
+
+    if (patientId && patientName && patients.length > 0) {
+      // Find the patient in the loaded patients list
+      const patient = patients.find((p) => p.id === patientId);
+      if (patient) {
+        setSelectedPatient(patient);
+        setShowNewPrescription(true);
+      } else {
+        // Create a temporary patient object if not found in list
+        const nameParts = patientName.split(" ");
+        setSelectedPatient({
+          id: patientId,
+          firstName: nameParts[0] || "",
+          lastName: nameParts.slice(1).join(" ") || "",
+          email: patientEmail || "",
+        });
+        setShowNewPrescription(true);
+      }
+    }
+  }, [searchParams, patients]);
 
   const loadData = async () => {
     try {

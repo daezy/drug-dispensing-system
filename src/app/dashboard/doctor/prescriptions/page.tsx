@@ -219,12 +219,13 @@ export default function DoctorPrescriptionsListPage() {
 
   const handlePatientSelect = (patient: Patient) => {
     // Navigate to create prescription page with patient pre-selected
+    const patientName = `${patient.firstName} ${patient.lastName}`;
     router.push(
       `/doctor/prescriptions?patientId=${
         patient.id
       }&patientName=${encodeURIComponent(
-        patient.firstName + " " + patient.lastName
-      )}`
+        patientName
+      )}&patientEmail=${encodeURIComponent(patient.email)}`
     );
   };
 
