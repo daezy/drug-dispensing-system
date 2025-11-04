@@ -31,17 +31,40 @@ interface Medication {
 interface Prescription {
   id: string;
   prescriptionNumber: string;
-  patientName: string;
-  patientId: string;
-  doctorName: string;
-  doctorId: string;
-  date: string;
-  status: "pending" | "dispensed" | "rejected" | "expired";
-  medications: Medication[];
-  diagnosis?: string;
-  notes?: string;
-  dispensedDate?: string;
-  dispensedBy?: string;
+  medication: string;
+  genericName?: string;
+  dosage: string;
+  dosageForm?: string;
+  quantity: number;
+  dispensedQuantity?: number;
+  frequency: string;
+  duration: string;
+  instructions?: string;
+  status: "pending" | "verified" | "dispensed" | "rejected" | "expired";
+  dateIssued: string;
+  dateDispensed?: string;
+  patient: {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    dateOfBirth?: string;
+    allergies?: string[];
+    insuranceNumber?: string;
+  } | null;
+  doctor: {
+    id: string;
+    name: string;
+    specialty?: string;
+    licenseNumber?: string;
+    phone?: string;
+  } | null;
+  pharmacist?: {
+    id: string;
+    name: string;
+    licenseNumber?: string;
+    pharmacyName?: string;
+  } | null;
 }
 
 export default function PharmacistPrescriptionsPage() {
@@ -113,9 +136,9 @@ export default function PharmacistPrescriptionsPage() {
       filtered = filtered.filter(
         (p) =>
           p.prescriptionNumber.toLowerCase().includes(term) ||
-          p.patientName.toLowerCase().includes(term) ||
-          p.doctorName.toLowerCase().includes(term) ||
-          p.medications.some((m) => m.name.toLowerCase().includes(term))
+          (p.patient?.name || "").toLowerCase().includes(term) ||
+          (p.doctor?.name || "").toLowerCase().includes(term) ||
+          p.medication.toLowerCase().includes(term)
       );
     }
 
@@ -281,7 +304,7 @@ export default function PharmacistPrescriptionsPage() {
                           <span>
                             Patient:{" "}
                             <strong className="text-gray-900 dark:text-white">
-                              {prescription.patientName}
+                              {prescription.patient?.name || "Unknown"}
                             </strong>
                           </span>
                         </div>
@@ -290,14 +313,14 @@ export default function PharmacistPrescriptionsPage() {
                           <span>
                             Doctor:{" "}
                             <strong className="text-gray-900 dark:text-white">
-                              {prescription.doctorName}
+                              {prescription.doctor?.name || "Unknown"}
                             </strong>
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4" />
                           <span>
-                            {new Date(prescription.date).toLocaleDateString()}
+                            {new Date(prescription.dateIssued).toLocaleDateString()}
                           </span>
                         </div>
                       </div>
@@ -311,45 +334,41 @@ export default function PharmacistPrescriptionsPage() {
                     </button>
                   </div>
 
-                  {/* Medications Preview */}
+                  {/* Medication Info */}
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                     <div className="flex items-center gap-2 mb-2">
                       <Pill className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                       <span className="text-sm font-medium text-gray-900 dark:text-white">
-                        Medications ({prescription.medications.length})
+                        Medication
                       </span>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {prescription.medications
-                        .slice(0, 3)
-                        .map((med, index) => (
-                          <span
-                            key={index}
-                            className="px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-full text-xs"
-                          >
-                            {med.name}
-                          </span>
-                        ))}
-                      {prescription.medications.length > 3 && (
-                        <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full text-xs">
-                          +{prescription.medications.length - 3} more
-                        </span>
-                      )}
+                    <div className="space-y-1">
+                      <div className="px-3 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                        <p className="text-sm font-medium text-blue-900 dark:text-blue-300">
+                          {prescription.medication}
+                        </p>
+                        <p className="text-xs text-blue-700 dark:text-blue-400">
+                          {prescription.dosage} - {prescription.dosageForm || "N/A"}
+                        </p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                          Qty: {prescription.quantity} | {prescription.frequency} | {prescription.duration}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
                   {prescription.status === "dispensed" &&
-                    prescription.dispensedDate && (
+                    prescription.dateDispensed && (
                       <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                         <div className="flex items-center gap-2 text-sm text-green-800 dark:text-green-400">
                           <Package className="w-4 h-4" />
                           <span>
                             Dispensed on{" "}
                             {new Date(
-                              prescription.dispensedDate
+                              prescription.dateDispensed
                             ).toLocaleDateString()}
-                            {prescription.dispensedBy &&
-                              ` by ${prescription.dispensedBy}`}
+                            {prescription.pharmacist &&
+                              ` by ${prescription.pharmacist.name}`}
                           </span>
                         </div>
                       </div>
@@ -389,81 +408,103 @@ export default function PharmacistPrescriptionsPage() {
                       Patient
                     </h3>
                     <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {selectedPrescription.patientName}
+                      {selectedPrescription.patient?.name || "Unknown"}
                     </p>
+                    {selectedPrescription.patient?.email && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {selectedPrescription.patient.email}
+                      </p>
+                    )}
+                    {selectedPrescription.patient?.allergies && selectedPrescription.patient.allergies.length > 0 && (
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                        Allergies: {selectedPrescription.patient.allergies.join(", ")}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                       Doctor
                     </h3>
                     <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {selectedPrescription.doctorName}
+                      {selectedPrescription.doctor?.name || "Unknown"}
                     </p>
+                    {selectedPrescription.doctor?.specialty && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {selectedPrescription.doctor.specialty}
+                      </p>
+                    )}
+                    {selectedPrescription.doctor?.licenseNumber && (
+                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        License: {selectedPrescription.doctor.licenseNumber}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                       Prescription Date
                     </h3>
                     <p className="text-gray-900 dark:text-white">
-                      {new Date(selectedPrescription.date).toLocaleDateString()}
+                      {new Date(selectedPrescription.dateIssued).toLocaleDateString()}
                     </p>
                   </div>
-                  {selectedPrescription.diagnosis && (
-                    <div className="col-span-2">
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                        Diagnosis
-                      </h3>
-                      <p className="text-gray-900 dark:text-white">
-                        {selectedPrescription.diagnosis}
-                      </p>
-                    </div>
-                  )}
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      Prescription Number
+                    </h3>
+                    <p className="text-gray-900 dark:text-white font-mono">
+                      {selectedPrescription.prescriptionNumber}
+                    </p>
+                  </div>
                 </div>
 
-                {/* Medications */}
+                {/* Medication Details */}
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                    Medications
+                    Medication Details
                   </h3>
-                  <div className="space-y-3">
-                    {selectedPrescription.medications.map((med, index) => (
-                      <div
-                        key={index}
-                        className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                      >
-                        <h4 className="font-medium text-gray-900 dark:text-white mb-2">
-                          {med.name}
-                        </h4>
-                        <div className="grid grid-cols-3 gap-2 text-sm text-gray-600 dark:text-gray-400">
-                          <div>
-                            <span className="font-medium">Dosage:</span>{" "}
-                            {med.dosage}
-                          </div>
-                          <div>
-                            <span className="font-medium">Frequency:</span>{" "}
-                            {med.frequency}
-                          </div>
-                          <div>
-                            <span className="font-medium">Duration:</span>{" "}
-                            {med.duration}
-                          </div>
-                        </div>
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg space-y-3">
+                    <div>
+                      <h4 className="font-medium text-blue-900 dark:text-blue-300 text-lg">
+                        {selectedPrescription.medication}
+                      </h4>
+                      {selectedPrescription.genericName && (
+                        <p className="text-sm text-blue-700 dark:text-blue-400">
+                          Generic: {selectedPrescription.genericName}
+                        </p>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Dosage:</span>{" "}
+                        <span className="text-gray-900 dark:text-white">{selectedPrescription.dosage}</span>
                       </div>
-                    ))}
+                      <div>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Form:</span>{" "}
+                        <span className="text-gray-900 dark:text-white">{selectedPrescription.dosageForm || "N/A"}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Quantity:</span>{" "}
+                        <span className="text-gray-900 dark:text-white">{selectedPrescription.quantity}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Frequency:</span>{" "}
+                        <span className="text-gray-900 dark:text-white">{selectedPrescription.frequency}</span>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Duration:</span>{" "}
+                        <span className="text-gray-900 dark:text-white">{selectedPrescription.duration}</span>
+                      </div>
+                    </div>
+                    {selectedPrescription.instructions && (
+                      <div className="pt-2 border-t border-blue-200 dark:border-blue-800">
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Instructions:</span>
+                        <p className="text-gray-900 dark:text-white mt-1">
+                          {selectedPrescription.instructions}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                {/* Notes */}
-                {selectedPrescription.notes && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                      Notes
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      {selectedPrescription.notes}
-                    </p>
-                  </div>
-                )}
 
                 {/* Dispensed Info */}
                 {selectedPrescription.status === "dispensed" && (
@@ -472,16 +513,31 @@ export default function PharmacistPrescriptionsPage() {
                       Dispensed Information
                     </h3>
                     <div className="space-y-1 text-sm text-green-700 dark:text-green-400">
-                      {selectedPrescription.dispensedDate && (
+                      {selectedPrescription.dateDispensed && (
                         <p>
-                          Date:{" "}
-                          {new Date(
-                            selectedPrescription.dispensedDate
-                          ).toLocaleString()}
+                          <span className="font-medium">Date:</span>{" "}
+                          {new Date(selectedPrescription.dateDispensed).toLocaleString()}
                         </p>
                       )}
-                      {selectedPrescription.dispensedBy && (
-                        <p>By: {selectedPrescription.dispensedBy}</p>
+                      {selectedPrescription.pharmacist && (
+                        <>
+                          <p>
+                            <span className="font-medium">Pharmacist:</span>{" "}
+                            {selectedPrescription.pharmacist.name}
+                          </p>
+                          {selectedPrescription.pharmacist.pharmacyName && (
+                            <p>
+                              <span className="font-medium">Pharmacy:</span>{" "}
+                              {selectedPrescription.pharmacist.pharmacyName}
+                            </p>
+                          )}
+                        </>
+                      )}
+                      {selectedPrescription.dispensedQuantity && (
+                        <p>
+                          <span className="font-medium">Quantity Dispensed:</span>{" "}
+                          {selectedPrescription.dispensedQuantity}
+                        </p>
                       )}
                     </div>
                   </div>
