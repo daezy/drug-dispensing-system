@@ -45,10 +45,13 @@ interface Medication {
 
 interface Patient {
   id: string;
-  name: string;
-  age: number;
-  phone: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
+  age?: number;
+  phone?: string;
   email: string;
+  patientId?: string;
 }
 
 export default function DoctorPrescriptionPage() {
@@ -58,6 +61,15 @@ export default function DoctorPrescriptionPage() {
   const [showNewPrescription, setShowNewPrescription] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [patients, setPatients] = useState<Patient[]>([]);
+
+  // Helper function to get patient full name
+  const getPatientName = (patient: Patient): string => {
+    if (patient.name) return patient.name;
+    return (
+      `${patient.firstName || ""} ${patient.lastName || ""}`.trim() ||
+      "Unknown Patient"
+    );
+  };
   const [recentPrescriptions, setRecentPrescriptions] = useState<
     Prescription[]
   >([]);
@@ -162,7 +174,7 @@ export default function DoctorPrescriptionPage() {
       // Here you would make an API call to save the prescription
       const prescriptionData = {
         patientId: selectedPatient.id,
-        patientName: selectedPatient.name,
+        patientName: getPatientName(selectedPatient),
         medications,
         diagnosis,
         notes,
@@ -200,14 +212,17 @@ export default function DoctorPrescriptionPage() {
     }
   };
 
-  const filteredPatients = patients.filter(
-    (patient) =>
-      patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPatients = patients.filter((patient) => {
+    const fullName = getPatientName(patient);
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      fullName.toLowerCase().includes(searchLower) ||
+      (patient.email && patient.email.toLowerCase().includes(searchLower))
+    );
+  });
 
   return (
-    <DashboardLayout>
+    <DashboardLayout title="Prescriptions" role="doctor">
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -332,10 +347,10 @@ export default function DoctorPrescriptionPage() {
                           <User className="w-5 h-5 text-gray-400" />
                           <div>
                             <div className="text-sm font-medium text-gray-900">
-                              {patient.name}
+                              {getPatientName(patient)}
                             </div>
                             <div className="text-xs text-gray-500">
-                              {patient.email} • Age: {patient.age}
+                              {patient.email} • Age: {patient.age || "N/A"}
                             </div>
                           </div>
                         </button>
@@ -348,10 +363,11 @@ export default function DoctorPrescriptionPage() {
                         <User className="w-5 h-5 text-blue-600" />
                         <div>
                           <div className="text-sm font-medium text-blue-900">
-                            {selectedPatient.name}
+                            {getPatientName(selectedPatient)}
                           </div>
                           <div className="text-xs text-blue-700">
-                            Age: {selectedPatient.age} • {selectedPatient.email}
+                            Age: {selectedPatient.age || "N/A"} •{" "}
+                            {selectedPatient.email}
                           </div>
                         </div>
                       </div>

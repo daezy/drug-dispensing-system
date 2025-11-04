@@ -46,6 +46,31 @@ export class UserService {
       .substring(2)}`;
   }
 
+  // Generate unique Patient ID in format: PT-YYYY-XXXXXX
+  public async generatePatientId(): Promise<string> {
+    const year = new Date().getFullYear();
+
+    // Count existing patients to generate sequential number
+    const patientCount = await PatientModel.countDocuments();
+    const sequentialNumber = (patientCount + 1).toString().padStart(6, "0");
+
+    const patientId = `PT-${year}-${sequentialNumber}`;
+
+    // Check if ID already exists (rare case if multiple registrations happen simultaneously)
+    const existingPatient = await PatientModel.findOne({
+      medical_record_number: patientId,
+    });
+    if (existingPatient) {
+      // If exists, add random suffix
+      const randomSuffix = Math.floor(Math.random() * 100)
+        .toString()
+        .padStart(2, "0");
+      return `PT-${year}-${sequentialNumber}${randomSuffix}`;
+    }
+
+    return patientId;
+  }
+
   // Simple in-memory rate limiting (in production, use Redis or database)
   private loginAttempts = new Map<
     string,
@@ -329,8 +354,11 @@ export class UserService {
             roleData = await newPharmacist.save({ session });
           } else if (sanitizedData.role === "patient") {
             const patientData = sanitizedData as PatientRegistrationData;
+            // Generate unique patient ID
+            const patientId = await this.generatePatientId();
             const newPatient = new PatientModel({
               user_id: savedUser._id,
+              medical_record_number: patientId,
               date_of_birth: patientData.date_of_birth || null,
               contact_info: patientData.contact_info || {},
               emergency_contact: patientData.emergency_contact || {},

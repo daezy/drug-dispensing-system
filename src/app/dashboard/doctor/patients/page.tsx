@@ -47,10 +47,16 @@ export default function DoctorPatientsPage() {
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
   useEffect(() => {
-    if (!user || user.role !== "doctor") {
+    if (!user) {
+      // Still loading auth context
+      return;
+    }
+    
+    if (user.role !== "doctor") {
       router.push("/");
       return;
     }
+    
     loadPatients();
   }, [user, router]);
 
@@ -58,15 +64,38 @@ export default function DoctorPatientsPage() {
     setIsLoading(true);
 
     try {
+      // Get token from localStorage
+      const token = localStorage.getItem("auth_token");
+      
+      if (!token) {
+        showError("Please log in again");
+        router.push("/");
+        return;
+      }
+      
       // Fetch patients from API
-      const response = await fetch("/api/doctors/patients");
+      const response = await fetch("/api/doctors/patients", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
       if (response.ok) {
         const data = await response.json();
         setPatients(data.patients || []);
       } else {
-        showError("Failed to load patients");
+        const errorData = await response.json();
+        
+        if (response.status === 401) {
+          showError("Session expired. Please log in again.");
+          localStorage.removeItem("auth_token");
+          router.push("/");
+        } else {
+          showError(errorData.error || "Failed to load patients");
+        }
       }
     } catch (error) {
+      console.error("Error loading patients:", error);
       showError("Failed to load patients");
     } finally {
       setIsLoading(false);

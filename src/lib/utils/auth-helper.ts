@@ -42,11 +42,21 @@ export async function authenticateRequest(
     }
 
     // Verify JWT token
-    const decoded = jwt.verify(token, JWT_SECRET) as AuthUser;
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
+
+    // Normalize the decoded token format (handle both 'id' and 'userId')
+    const user: AuthUser = {
+      id: decoded.id || decoded.userId,
+      email: decoded.email,
+      role: decoded.role,
+      firstName: decoded.firstName || decoded.username?.split(" ")[0],
+      lastName:
+        decoded.lastName || decoded.username?.split(" ").slice(1).join(" "),
+    };
 
     return {
       success: true,
-      user: decoded,
+      user: user,
     };
   } catch (error) {
     console.error("Authentication error:", error);
