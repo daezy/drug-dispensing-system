@@ -46,24 +46,51 @@ export default function DoctorHistoryPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    if (!user || user.role !== "doctor") {
+    if (!user) {
+      // Still loading auth context
+      return;
+    }
+
+    if (user.role !== "doctor") {
       router.push("/");
       return;
     }
+
     loadHistory();
   }, [user, router]);
 
   const loadHistory = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/doctors/history");
+      // Get token from localStorage
+      const token = localStorage.getItem("auth_token");
+
+      if (!token) {
+        showError("Please log in again");
+        router.push("/");
+        return;
+      }
+
+      const response = await fetch("/api/doctors/history", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       if (response.ok) {
         const data = await response.json();
         setHistory(data.history || []);
       } else {
-        showError("Failed to load history");
+        if (response.status === 401) {
+          showError("Session expired. Please log in again.");
+          localStorage.removeItem("auth_token");
+          router.push("/");
+        } else {
+          showError("Failed to load history");
+        }
       }
     } catch (error) {
+      console.error("Error loading history:", error);
       showError("Failed to load history");
     } finally {
       setIsLoading(false);

@@ -39,6 +39,7 @@ function mapUserData(dbUser: any): any {
     } else if (dbUser.role === "patient") {
       user.phone = roleData.contact_info?.phone;
       user.dateOfBirth = roleData.date_of_birth;
+      user.patientId = roleData.medical_record_number; // Patient ID (PT-YYYY-XXXXXX)
       user.insuranceNumber = roleData.contact_info?.insuranceNumber;
       if (roleData.emergency_contact) {
         user.emergencyContact = `${roleData.emergency_contact.name} - ${roleData.emergency_contact.phone}`;

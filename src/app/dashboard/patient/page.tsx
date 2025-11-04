@@ -89,9 +89,17 @@ export default function PatientDashboard() {
             <div className="relative z-10">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <div className="inline-flex items-center px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm font-medium mb-3">
-                    <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-                    Active Patient
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="inline-flex items-center px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm font-medium">
+                      <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+                      Active Patient
+                    </div>
+                    {user?.patientId && (
+                      <div className="inline-flex items-center px-3 py-1 bg-white bg-opacity-30 backdrop-blur-sm rounded-full text-sm font-mono font-semibold">
+                        <FileText className="mr-2" size={14} />
+                        {user.patientId}
+                      </div>
+                    )}
                   </div>
                   <h1 className="text-3xl md:text-4xl font-bold mb-2">
                     Welcome back, {user?.firstName || "Patient"}!

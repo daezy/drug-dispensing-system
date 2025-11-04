@@ -17,6 +17,7 @@ export interface User {
   pharmacyName?: string; // for pharmacists
   pharmacyAddress?: string; // for pharmacists
   dateOfBirth?: string; // for patients
+  patientId?: string; // for patients - unique ID (PT-YYYY-XXXXXX)
   insuranceNumber?: string; // for patients
   emergencyContact?: string; // for patients
   employeeId?: string; // for admins
