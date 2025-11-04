@@ -68,8 +68,19 @@ export default function PatientPrescriptionsPage() {
     setIsLoading(true);
 
     try {
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        showError("Please log in again");
+        router.push("/login");
+        return;
+      }
+
       // Fetch prescriptions from API
-      const response = await fetch("/api/prescriptions/patient");
+      const response = await fetch("/api/prescriptions/patient", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setPrescriptions(data.prescriptions || []);

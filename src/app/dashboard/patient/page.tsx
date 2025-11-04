@@ -51,8 +51,71 @@ export default function PatientDashboard() {
 
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [copiedPatientId, setCopiedPatientId] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { user } = useAuth();
+
+  // Fetch prescriptions data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("auth_token");
+        if (!token) return;
+
+        const response = await fetch("/api/prescriptions/patient", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.prescriptions) {
+            // Map API response to dashboard format
+            const mappedPrescriptions = data.prescriptions.map((p: any) => ({
+              id: p.id,
+              medication: p.medication,
+              dosage: p.dosage,
+              frequency: p.frequency,
+              prescribedBy: p.doctor?.name || "Unknown Doctor",
+              date: new Date(p.dateIssued).toLocaleDateString(),
+              status:
+                p.status === "pending"
+                  ? "pending"
+                  : p.status === "dispensed"
+                  ? "completed"
+                  : "active",
+              refillsLeft: 0, // Not in current schema
+              instructions: p.instructions,
+            }));
+            setPrescriptions(mappedPrescriptions);
+
+            // Update stats
+            const activePrescriptions = data.prescriptions.filter(
+              (p: any) => p.status === "pending" || p.status === "verified"
+            ).length;
+            const completedOrders = data.prescriptions.filter(
+              (p: any) => p.status === "dispensed"
+            ).length;
+
+            setStats({
+              activePrescriptions,
+              completedOrders,
+              healthScore: 85, // Mock health score
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching prescriptions:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchData();
+    }
+  }, [user]);
 
   const copyPatientId = async () => {
     if (user?.patientId) {
@@ -265,7 +328,16 @@ export default function PatientDashboard() {
                 </div>
               </div>
               <div className="p-6">
-                {prescriptions.length === 0 ? (
+                {isLoading ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                      <Pill className="text-gray-400" size={32} />
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Loading prescriptions...
+                    </p>
+                  </div>
+                ) : prescriptions.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
                       <Pill className="text-gray-400" size={32} />

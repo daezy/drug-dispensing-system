@@ -183,6 +183,37 @@ class BlockchainService {
   }
 
   /**
+   * Record prescription creation
+   */
+  public recordPrescriptionCreation(
+    prescriptionId: string,
+    drugId: string,
+    drugName: string,
+    quantity: number,
+    performedBy: string,
+    patientName: string,
+    notes?: string
+  ): BlockchainTransaction {
+    return this.addTransaction({
+      transactionId: `PRESC_${Date.now()}_${Math.random()
+        .toString(36)
+        .substr(2, 9)}`,
+      drugId,
+      drugName,
+      transactionType: "stock_in", // Using stock_in as the transaction type for prescription creation
+      quantity: 0, // No inventory change on prescription creation
+      previousQuantity: 0,
+      newQuantity: 0,
+      performedBy,
+      performedByRole: "doctor",
+      prescriptionId,
+      notes: `Prescription created for ${patientName}${
+        notes ? ". " + notes : ""
+      }`,
+    });
+  }
+
+  /**
    * Create a dispensing transaction
    */
   public recordDispensing(

@@ -16,16 +16,19 @@ import {
   Filter,
   FileText,
   Stethoscope,
+  Shield,
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/lib/auth-context";
+import BlockchainStatus from "@/components/BlockchainStatus";
 
 interface DashboardStats {
   totalPatients: number;
   activePrescriptions: number;
   pendingApprovals: number;
   todayAppointments: number;
+  blockchainVerified: number;
 }
 
 interface RecentActivity {
@@ -54,6 +57,7 @@ export default function DoctorDashboard() {
     activePrescriptions: 0,
     pendingApprovals: 0,
     todayAppointments: 0,
+    blockchainVerified: 0,
   });
 
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
@@ -225,6 +229,34 @@ export default function DoctorDashboard() {
                 <Clock size={12} className="mr-1" />
                 Next at 2:00 PM
               </p>
+            </div>
+
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6 shadow-sm border-2 border-green-200 dark:border-green-800 hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Shield className="text-white" size={24} />
+                </div>
+                <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-xs font-semibold rounded-full">
+                  ✓ Secure
+                </span>
+              </div>
+              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                Blockchain Verified
+              </h3>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                {stats.blockchainVerified}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                <CheckCircle size={12} className="mr-1" />
+                Prescriptions secured
+              </p>
+            </div>
+          </div>
+
+          {/* Blockchain Status Section */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <div className="p-6">
+              <BlockchainStatus />
             </div>
           </div>
 

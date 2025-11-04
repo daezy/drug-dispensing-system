@@ -10,6 +10,12 @@ export const GET = withPatientAuth(async (request, user) => {
     // Find the patient record for this user
     const patient = await PatientModel.findOne({ user_id: user.id });
 
+    console.log("🔍 Patient lookup:", {
+      userId: user.id,
+      patientFound: !!patient,
+      patientId: patient?._id?.toString(),
+    });
+
     if (!patient) {
       return NextResponse.json(
         {

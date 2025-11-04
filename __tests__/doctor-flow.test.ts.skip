@@ -1,0 +1,738 @@
+/**
+ * Doctor Flow Integration Tests
+ * 
+ * Tests the complete doctor workflow:
+ * Login → Dashboard → Create Prescription → Select Patient → Add Drug → Submit → Blockchain Recording
+ * 
+ * Note: These tests are currently skipped because they require MongoDB Memory Server setup.
+ * To enable: Ensure mongodb-memory-server is properly installed and remove .skip
+ */
+
+import jwt from "jsonwebtoken";
+
+// Mock environment variables
+process.env.JWT_SECRET = "test-secret-key";
+process.env.MONGODB_URI = "mongodb://localhost:27017/test";
+
+/**
+ * JWT Token Tests - Basic authentication testing without database
+ */
+describe("Doctor Flow - JWT Authentication Tests", () => {
+  describe("1. Token Generation and Validation", () => {
+    test("should generate valid JWT token for doctor", () => {
+      const payload = {
+        id: "doctor123",
+        email: "doctor@test.com",
+        role: "doctor",
+      };
+
+      const token = jwt.sign(payload, process.env.JWT_SECRET!, {
+        expiresIn: "24h",
+      });
+
+      expect(token).toBeTruthy();
+      expect(typeof token).toBe("string");
+      expect(token.split(".")).toHaveLength(3); // JWT has 3 parts
+    });
+
+    test("should verify and decode valid JWT token", () => {
+      const payload = {
+        id: "doctor123",
+        email: "doctor@test.com",
+        role: "doctor",
+      };
+
+      const token = jwt.sign(payload, process.env.JWT_SECRET!, {
+        expiresIn: "24h",
+      });
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+
+      expect(decoded).toHaveProperty("id", "doctor123");
+      expect(decoded).toHaveProperty("email", "doctor@test.com");
+      expect(decoded).toHaveProperty("role", "doctor");
+      expect(decoded).toHaveProperty("iat"); // issued at
+      expect(decoded).toHaveProperty("exp"); // expiration
+    });
+
+    test("should reject invalid JWT token", () => {
+      expect(() => {
+        jwt.verify("invalid-token", process.env.JWT_SECRET!);
+      }).toThrow();
+    });
+
+    test("should reject token with wrong secret", () => {
+      const token = jwt.sign({ id: "doctor123" }, "wrong-secret");
+
+      expect(() => {
+        jwt.verify(token, process.env.JWT_SECRET!);
+      }).toThrow();
+    });
+
+    test("should reject expired token", () => {
+      const token = jwt.sign(
+        { id: "doctor123", role: "doctor" },
+        process.env.JWT_SECRET!,
+        { expiresIn: "-1h" } // Already expired
+      );
+
+      expect(() => {
+        jwt.verify(token, process.env.JWT_SECRET!);
+      }).toThrow();
+    });
+  });
+
+  describe("2. Role-Based Token Creation", () => {
+    test("should create token with doctor role", () => {
+      const token = jwt.sign(
+        {
+          id: "doc1",
+          email: "doctor@test.com",
+          role: "doctor",
+        },
+        process.env.JWT_SECRET!,
+        { expiresIn: "24h" }
+      );
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+      expect(decoded.role).toBe("doctor");
+    });
+
+    test("should create token with patient role", () => {
+      const token = jwt.sign(
+        {
+          id: "pat1",
+          email: "patient@test.com",
+          role: "patient",
+        },
+        process.env.JWT_SECRET!,
+        { expiresIn: "24h" }
+      );
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+      expect(decoded.role).toBe("patient");
+    });
+
+    test("should create token with pharmacist role", () => {
+      const token = jwt.sign(
+        {
+          id: "pharm1",
+          email: "pharmacist@test.com",
+          role: "pharmacist",
+        },
+        process.env.JWT_SECRET!,
+        { expiresIn: "24h" }
+      );
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+      expect(decoded.role).toBe("pharmacist");
+    });
+  });
+});
+
+// MONGODB INTEGRATION TESTS - CURRENTLY SKIPPED
+// These tests require MongoDB Memory Server
+// To enable: Install dependencies and remove .skip
+describe.skip("Doctor Flow - Database Integration Tests", () => {
+  let doctorUser: any;
+  let doctorProfile: any;
+  let patientUser: any;
+  let patientProfile: any;
+  let authToken: string;
+
+  beforeAll(async () => {
+    // Start in-memory MongoDB
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
+
+    await mongoose.connect(mongoUri);
+  });
+
+  afterAll(async () => {
+    await mongoose.disconnect();
+    await mongoServer.stop();
+  });
+
+  beforeEach(async () => {
+    // Clear all collections before each test
+    await UserModel.deleteMany({});
+    await DoctorModel.deleteMany({});
+    await PatientModel.deleteMany({});
+    await DrugModel.deleteMany({});
+    await PrescriptionModel.deleteMany({});
+
+    // Create a test doctor user
+    doctorUser = await UserModel.create({
+      username: "Dr. John Smith",
+      email: "doctor@test.com",
+      password: "hashed_password",
+      role: "doctor",
+    });
+
+    doctorProfile = await DoctorModel.create({
+      user_id: doctorUser._id,
+      license_number: "DOC-12345",
+      specialization: "General Medicine",
+      years_of_experience: 10,
+      qualifications: "MD",
+    });
+
+    // Create a test patient user
+    patientUser = await UserModel.create({
+      username: "Jane Doe",
+      email: "patient@test.com",
+      password: "hashed_password",
+      role: "patient",
+    });
+
+    patientProfile = await PatientModel.create({
+      user_id: patientUser._id,
+      medical_record_number: "PT-2025-000001",
+      date_of_birth: new Date("1990-01-01"),
+      blood_type: "O+",
+      allergies: ["Penicillin"],
+      emergency_contact: {
+        name: "John Doe",
+        relationship: "Spouse",
+        phone: "+1234567890",
+      },
+    });
+
+    // Generate auth token
+    authToken = jwt.sign(
+      {
+        id: doctorUser._id.toString(),
+        email: doctorUser.email,
+        role: doctorUser.role,
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: "24h" }
+    );
+  });
+
+  describe("1. Authentication Flow", () => {
+    test("should authenticate doctor with valid credentials", () => {
+      const token = jwt.verify(authToken, process.env.JWT_SECRET!);
+
+      expect(token).toHaveProperty("id");
+      expect(token).toHaveProperty("email", "doctor@test.com");
+      expect(token).toHaveProperty("role", "doctor");
+    });
+
+    test("should reject invalid token", () => {
+      expect(() => {
+        jwt.verify("invalid-token", process.env.JWT_SECRET!);
+      }).toThrow();
+    });
+
+    test("should reject expired token", () => {
+      const expiredToken = jwt.sign(
+        { id: doctorUser._id.toString(), role: "doctor" },
+        process.env.JWT_SECRET!,
+        { expiresIn: "-1h" }
+      );
+
+      expect(() => {
+        jwt.verify(expiredToken, process.env.JWT_SECRET!);
+      }).toThrow();
+    });
+  });
+
+  describe("2. Patient Search & Selection", () => {
+    test("should find patient by Patient ID", async () => {
+      const patient = await PatientModel.findOne({
+        medical_record_number: "PT-2025-000001",
+      }).populate("user_id");
+
+      expect(patient).toBeTruthy();
+      expect(patient?.medical_record_number).toBe("PT-2025-000001");
+    });
+
+    test("should find patient by user ID", async () => {
+      const patient = await PatientModel.findOne({
+        user_id: patientUser._id,
+      }).populate("user_id");
+
+      expect(patient).toBeTruthy();
+      expect(patient?.user_id._id.toString()).toBe(patientUser._id.toString());
+    });
+
+    test("should return null for non-existent patient", async () => {
+      const patient = await PatientModel.findOne({
+        medical_record_number: "PT-2025-999999",
+      });
+
+      expect(patient).toBeNull();
+    });
+  });
+
+  describe("3. Prescription Creation", () => {
+    test("should create prescription with single medication", async () => {
+      // Create drug
+      const drug = await DrugModel.create({
+        name: "Amoxicillin",
+        strength: "500mg",
+        form: "Tablet",
+        manufacturer: "Generic",
+        requires_prescription: true,
+        quantity_in_stock: 1000,
+      });
+
+      // Create prescription
+      const prescription = await PrescriptionModel.create({
+        patient_id: patientProfile._id,
+        doctor_id: doctorProfile._id,
+        drug_id: drug._id,
+        quantity_prescribed: 30,
+        dosage_instructions: "Take twice daily for 7 days",
+        frequency: "Twice daily",
+        duration: "7 days",
+        date_issued: new Date(),
+        status: "issued",
+        notes: "Upper respiratory infection",
+      });
+
+      expect(prescription).toBeTruthy();
+      expect(prescription.status).toBe("issued");
+      expect(prescription.quantity_prescribed).toBe(30);
+      expect(prescription.patient_id.toString()).toBe(
+        patientProfile._id.toString()
+      );
+    });
+
+    test("should create multiple prescriptions for different medications", async () => {
+      const drugs = await Promise.all([
+        DrugModel.create({
+          name: "Amoxicillin",
+          strength: "500mg",
+          form: "Tablet",
+          manufacturer: "Generic",
+          requires_prescription: true,
+          quantity_in_stock: 1000,
+        }),
+        DrugModel.create({
+          name: "Ibuprofen",
+          strength: "400mg",
+          form: "Tablet",
+          manufacturer: "Generic",
+          requires_prescription: false,
+          quantity_in_stock: 1000,
+        }),
+      ]);
+
+      const prescriptions = await Promise.all([
+        PrescriptionModel.create({
+          patient_id: patientProfile._id,
+          doctor_id: doctorProfile._id,
+          drug_id: drugs[0]._id,
+          quantity_prescribed: 30,
+          dosage_instructions: "Take twice daily",
+          frequency: "Twice daily",
+          duration: "7 days",
+          date_issued: new Date(),
+          status: "issued",
+          notes: "Infection treatment",
+        }),
+        PrescriptionModel.create({
+          patient_id: patientProfile._id,
+          doctor_id: doctorProfile._id,
+          drug_id: drugs[1]._id,
+          quantity_prescribed: 20,
+          dosage_instructions: "Take as needed for pain",
+          frequency: "As needed",
+          duration: "7 days",
+          date_issued: new Date(),
+          status: "issued",
+          notes: "Pain management",
+        }),
+      ]);
+
+      expect(prescriptions).toHaveLength(2);
+      expect(prescriptions[0].drug_id.toString()).toBe(drugs[0]._id.toString());
+      expect(prescriptions[1].drug_id.toString()).toBe(drugs[1]._id.toString());
+    });
+
+    test("should auto-create drug if not exists", async () => {
+      const drugName = "NewDrug-" + Date.now();
+
+      let drug = await DrugModel.findOne({ name: drugName });
+      expect(drug).toBeNull();
+
+      // Simulate auto-creation
+      drug = await DrugModel.create({
+        name: drugName,
+        strength: "250mg",
+        form: "Tablet",
+        manufacturer: "Generic",
+        description: `${drugName} 250mg`,
+        requires_prescription: true,
+        quantity_in_stock: 1000,
+      });
+
+      expect(drug).toBeTruthy();
+      expect(drug.name).toBe(drugName);
+    });
+  });
+
+  describe("4. Blockchain Integration", () => {
+    test("should record prescription creation on blockchain", () => {
+      const blockchainTx = blockchainService.recordPrescriptionCreation(
+        "PRESC-TEST-001",
+        "DRUG-001",
+        "Amoxicillin",
+        30,
+        "Dr. John Smith",
+        "Jane Doe",
+        "Twice daily for 7 days"
+      );
+
+      expect(blockchainTx).toBeTruthy();
+      expect(blockchainTx.transactionId).toContain("PRESC_");
+      expect(blockchainTx.hash).toBeTruthy();
+      expect(blockchainTx.prescriptionId).toBe("PRESC-TEST-001");
+      expect(blockchainTx.drugName).toBe("Amoxicillin");
+      expect(blockchainTx.performedBy).toBe("Dr. John Smith");
+    });
+
+    test("should generate unique transaction IDs", () => {
+      const tx1 = blockchainService.recordPrescriptionCreation(
+        "PRESC-001",
+        "DRUG-001",
+        "DrugA",
+        30,
+        "Doctor1",
+        "Patient1",
+        "Notes1"
+      );
+
+      const tx2 = blockchainService.recordPrescriptionCreation(
+        "PRESC-002",
+        "DRUG-002",
+        "DrugB",
+        20,
+        "Doctor2",
+        "Patient2",
+        "Notes2"
+      );
+
+      expect(tx1.transactionId).not.toBe(tx2.transactionId);
+      expect(tx1.hash).not.toBe(tx2.hash);
+    });
+
+    test("should link transactions with previous hash", () => {
+      const tx1 = blockchainService.recordPrescriptionCreation(
+        "PRESC-001",
+        "DRUG-001",
+        "DrugA",
+        30,
+        "Doctor1",
+        "Patient1",
+        "Notes1"
+      );
+
+      const tx2 = blockchainService.recordPrescriptionCreation(
+        "PRESC-002",
+        "DRUG-002",
+        "DrugB",
+        20,
+        "Doctor2",
+        "Patient2",
+        "Notes2"
+      );
+
+      expect(tx2.previousHash).toBe(tx1.hash);
+    });
+
+    test("should verify blockchain integrity", () => {
+      // Create multiple transactions
+      blockchainService.recordPrescriptionCreation(
+        "PRESC-001",
+        "DRUG-001",
+        "DrugA",
+        30,
+        "Doctor1",
+        "Patient1",
+        "Notes1"
+      );
+
+      blockchainService.recordPrescriptionCreation(
+        "PRESC-002",
+        "DRUG-002",
+        "DrugB",
+        20,
+        "Doctor2",
+        "Patient2",
+        "Notes2"
+      );
+
+      const verification = blockchainService.verifyChain();
+      expect(verification.isValid).toBe(true);
+      expect(verification.message).toContain("valid");
+    });
+  });
+
+  describe("5. Prescription Status Updates", () => {
+    test("should track prescription status lifecycle", async () => {
+      const drug = await DrugModel.create({
+        name: "TestDrug",
+        strength: "500mg",
+        form: "Tablet",
+        manufacturer: "Generic",
+        requires_prescription: true,
+        quantity_in_stock: 1000,
+      });
+
+      const prescription = await PrescriptionModel.create({
+        patient_id: patientProfile._id,
+        doctor_id: doctorProfile._id,
+        drug_id: drug._id,
+        quantity_prescribed: 30,
+        dosage_instructions: "Test instructions",
+        frequency: "Daily",
+        duration: "30 days",
+        date_issued: new Date(),
+        status: "issued",
+      });
+
+      expect(prescription.status).toBe("issued");
+
+      // Update to dispensed
+      prescription.status = "dispensed";
+      prescription.date_dispensed = new Date();
+      await prescription.save();
+
+      const updated = await PrescriptionModel.findById(prescription._id);
+      expect(updated?.status).toBe("dispensed");
+      expect(updated?.date_dispensed).toBeTruthy();
+    });
+
+    test("should retrieve prescriptions with status filter", async () => {
+      const drug = await DrugModel.create({
+        name: "TestDrug",
+        strength: "500mg",
+        form: "Tablet",
+        manufacturer: "Generic",
+        requires_prescription: true,
+        quantity_in_stock: 1000,
+      });
+
+      // Create multiple prescriptions with different statuses
+      await PrescriptionModel.create({
+        patient_id: patientProfile._id,
+        doctor_id: doctorProfile._id,
+        drug_id: drug._id,
+        quantity_prescribed: 30,
+        dosage_instructions: "Test 1",
+        date_issued: new Date(),
+        status: "issued",
+      });
+
+      await PrescriptionModel.create({
+        patient_id: patientProfile._id,
+        doctor_id: doctorProfile._id,
+        drug_id: drug._id,
+        quantity_prescribed: 20,
+        dosage_instructions: "Test 2",
+        date_issued: new Date(),
+        status: "dispensed",
+        date_dispensed: new Date(),
+      });
+
+      const issuedPrescriptions = await PrescriptionModel.find({
+        doctor_id: doctorProfile._id,
+        status: "issued",
+      });
+
+      const dispensedPrescriptions = await PrescriptionModel.find({
+        doctor_id: doctorProfile._id,
+        status: "dispensed",
+      });
+
+      expect(issuedPrescriptions).toHaveLength(1);
+      expect(dispensedPrescriptions).toHaveLength(1);
+    });
+  });
+
+  describe("6. Data Retrieval & Display", () => {
+    test("should retrieve doctor prescriptions with populated data", async () => {
+      const drug = await DrugModel.create({
+        name: "TestDrug",
+        strength: "500mg",
+        form: "Tablet",
+        manufacturer: "Generic",
+        requires_prescription: true,
+        quantity_in_stock: 1000,
+      });
+
+      await PrescriptionModel.create({
+        patient_id: patientProfile._id,
+        doctor_id: doctorProfile._id,
+        drug_id: drug._id,
+        quantity_prescribed: 30,
+        dosage_instructions: "Test instructions",
+        frequency: "Daily",
+        duration: "30 days",
+        date_issued: new Date(),
+        status: "issued",
+        notes: "Test diagnosis",
+      });
+
+      const prescriptions = await PrescriptionModel.find({
+        doctor_id: doctorProfile._id,
+      })
+        .populate("patient_id")
+        .populate("drug_id")
+        .sort({ created_at: -1 });
+
+      expect(prescriptions).toHaveLength(1);
+      expect(prescriptions[0].drug_id).toBeTruthy();
+      expect(prescriptions[0].patient_id).toBeTruthy();
+    });
+
+    test("should generate prescription number format", async () => {
+      const drug = await DrugModel.create({
+        name: "TestDrug",
+        strength: "500mg",
+        form: "Tablet",
+        manufacturer: "Generic",
+        requires_prescription: true,
+        quantity_in_stock: 1000,
+      });
+
+      const prescription = await PrescriptionModel.create({
+        patient_id: patientProfile._id,
+        doctor_id: doctorProfile._id,
+        drug_id: drug._id,
+        quantity_prescribed: 30,
+        dosage_instructions: "Test",
+        date_issued: new Date(),
+        status: "issued",
+      });
+
+      const prescriptionNumber = `RX${prescription._id
+        .toString()
+        .slice(-8)
+        .toUpperCase()}`;
+
+      expect(prescriptionNumber).toMatch(/^RX[A-Z0-9]{8}$/);
+    });
+  });
+
+  describe("7. Error Handling", () => {
+    test("should handle missing doctor profile", async () => {
+      await DoctorModel.deleteMany({});
+
+      const doctor = await DoctorModel.findOne({ user_id: doctorUser._id });
+      expect(doctor).toBeNull();
+    });
+
+    test("should handle missing patient", async () => {
+      const patient = await PatientModel.findOne({
+        user_id: new mongoose.Types.ObjectId(),
+      });
+
+      expect(patient).toBeNull();
+    });
+
+    test("should validate required prescription fields", async () => {
+      try {
+        await PrescriptionModel.create({
+          // Missing required fields
+          status: "issued",
+        });
+        fail("Should have thrown validation error");
+      } catch (error: any) {
+        expect(error.name).toBe("ValidationError");
+      }
+    });
+  });
+
+  describe("8. Complete End-to-End Flow", () => {
+    test("should complete full prescription creation flow", async () => {
+      // Step 1: Verify doctor authentication
+      const decodedToken = jwt.verify(authToken, process.env.JWT_SECRET!);
+      expect(decodedToken).toHaveProperty("role", "doctor");
+
+      // Step 2: Find doctor profile
+      const doctor = await DoctorModel.findOne({
+        user_id: doctorUser._id,
+      }).populate("user_id");
+      expect(doctor).toBeTruthy();
+
+      // Step 3: Find patient
+      const patient = await PatientModel.findOne({
+        user_id: patientUser._id,
+      }).populate("user_id");
+      expect(patient).toBeTruthy();
+
+      // Step 4: Create/find drug
+      let drug = await DrugModel.findOne({ name: "Amoxicillin" });
+      if (!drug) {
+        drug = await DrugModel.create({
+          name: "Amoxicillin",
+          strength: "500mg",
+          form: "Tablet",
+          manufacturer: "Generic",
+          requires_prescription: true,
+          quantity_in_stock: 1000,
+        });
+      }
+      expect(drug).toBeTruthy();
+
+      // Step 5: Create prescription
+      const prescription = await PrescriptionModel.create({
+        patient_id: patient!._id,
+        doctor_id: doctor!._id,
+        drug_id: drug!._id,
+        quantity_prescribed: 30,
+        dosage_instructions: "Take twice daily for 7 days",
+        frequency: "Twice daily",
+        duration: "7 days",
+        date_issued: new Date(),
+        status: "issued",
+        notes: "Diagnosis: Upper respiratory infection",
+      });
+      expect(prescription).toBeTruthy();
+
+      // Step 6: Record on blockchain
+      const blockchainTx = blockchainService.recordPrescriptionCreation(
+        prescription._id.toString(),
+        drug._id.toString(),
+        drug.name,
+        30,
+        (doctor.user_id as any).username,
+        (patient.user_id as any).username,
+        "Twice daily for 7 days. Diagnosis: Upper respiratory infection"
+      );
+      expect(blockchainTx).toBeTruthy();
+      expect(blockchainTx.hash).toBeTruthy();
+
+      // Step 7: Update prescription with blockchain hash
+      prescription.blockchain_hash = blockchainTx.hash;
+      await prescription.save();
+
+      // Step 8: Verify complete prescription
+      const savedPrescription = await PrescriptionModel.findById(
+        prescription._id
+      )
+        .populate("patient_id")
+        .populate("doctor_id")
+        .populate("drug_id");
+
+      expect(savedPrescription).toBeTruthy();
+      expect(savedPrescription?.blockchain_hash).toBe(blockchainTx.hash);
+      expect(savedPrescription?.status).toBe("issued");
+
+      // Step 9: Generate prescription number
+      const prescriptionNumber = `RX${savedPrescription!._id
+        .toString()
+        .slice(-8)
+        .toUpperCase()}`;
+      expect(prescriptionNumber).toMatch(/^RX[A-Z0-9]{8}$/);
+
+      // Step 10: Verify blockchain integrity
+      const verification = blockchainService.verifyChain();
+      expect(verification.isValid).toBe(true);
+    });
+  });
+});

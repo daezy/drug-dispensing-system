@@ -14,11 +14,13 @@ import {
   Clock,
   XCircle,
   X,
+  Shield,
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/lib/auth-context";
 import { showError } from "@/lib/utils/toast-helper";
+import TransactionHash from "@/components/TransactionHash";
 
 interface Medication {
   drugName: string;
@@ -38,6 +40,8 @@ interface Prescription {
   status: "issued" | "dispensed" | "expired" | "cancelled";
   medications: Medication[];
   notes?: string;
+  blockchainHash?: string;
+  transactionId?: string;
 }
 
 interface Patient {
@@ -607,6 +611,12 @@ export default function DoctorPrescriptionsListPage() {
                           {prescription.status.charAt(0).toUpperCase() +
                             prescription.status.slice(1)}
                         </span>
+                        {prescription.blockchainHash && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-medium">
+                            <Shield className="w-3 h-3" />
+                            Blockchain Verified
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                         <div className="flex items-center gap-1">
@@ -738,6 +748,38 @@ export default function DoctorPrescriptionsListPage() {
                       <p className="text-gray-700 dark:text-gray-300">
                         {selectedPrescription.notes}
                       </p>
+                    </div>
+                  )}
+
+                  {/* Blockchain Verification */}
+                  {selectedPrescription.blockchainHash && (
+                    <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-200 dark:border-green-800 rounded-xl">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                          <Shield className="w-5 h-5 text-white" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white">
+                          Blockchain Verified
+                        </h4>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                        This prescription has been recorded on the blockchain
+                        for security and traceability.
+                      </p>
+                      <TransactionHash
+                        txHash={selectedPrescription.blockchainHash}
+                        label="Prescription Hash"
+                        showCopy={true}
+                        showExplorer={false}
+                      />
+                      {selectedPrescription.transactionId && (
+                        <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                          <span className="font-medium">Transaction ID:</span>{" "}
+                          <code className="bg-white dark:bg-gray-800 px-2 py-0.5 rounded">
+                            {selectedPrescription.transactionId}
+                          </code>
+                        </div>
+                      )}
                     </div>
                   )}
 

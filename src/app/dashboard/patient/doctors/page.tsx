@@ -54,7 +54,18 @@ export default function PatientDoctorsPage() {
   const loadDoctors = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/patients/doctors");
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        showError("Please log in again");
+        router.push("/login");
+        return;
+      }
+
+      const response = await fetch("/api/patients/doctors", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setDoctors(data.doctors || []);

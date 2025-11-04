@@ -15,23 +15,46 @@ import {
   X,
   Check,
   AlertCircle,
+  Shield,
+  Link as LinkIcon,
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useAuth } from "@/lib/auth-context";
 import { showSuccess, showError, API_MESSAGES } from "@/lib/utils/toast-helper";
+import TransactionHash from "@/components/TransactionHash";
 
 // Force dynamic rendering for this page
 export const dynamic = "force-dynamic";
 
 interface Prescription {
   id: string;
-  patientName: string;
-  patientId: string;
-  medications: Medication[];
-  diagnosis: string;
-  notes: string;
+  prescriptionNumber: string;
+  medication: string; // Single medication from API
+  dosage: string;
+  quantity: number;
+  dispensedQuantity: number;
+  frequency: string;
+  duration: string;
+  instructions: string;
+  status: "pending" | "verified" | "dispensed" | "rejected" | "expired";
   dateIssued: string;
-  status: "draft" | "issued" | "dispensed";
+  dateDispensed?: string;
+  patient?: {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    dateOfBirth?: string;
+    allergies?: string[];
+  };
+  pharmacist?: {
+    id: string;
+    name: string;
+    licenseNumber?: string;
+    pharmacyName?: string;
+  };
+  notes?: string;
+  blockchainHash?: string;
 }
 
 interface Medication {
@@ -101,7 +124,7 @@ export default function DoctorPrescriptionPage() {
   // Check for pre-selected patient from URL params
   useEffect(() => {
     if (!searchParams) return;
-    
+
     const patientId = searchParams.get("patientId");
     const patientName = searchParams.get("patientName");
     const patientEmail = searchParams.get("patientEmail");
@@ -128,15 +151,30 @@ export default function DoctorPrescriptionPage() {
 
   const loadData = async () => {
     try {
+      // Get auth token
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        console.error("No auth token found");
+        return;
+      }
+
       // Fetch patients from API
-      const patientsResponse = await fetch("/api/patients");
+      const patientsResponse = await fetch("/api/patients", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (patientsResponse.ok) {
         const patientsData = await patientsResponse.json();
         setPatients(patientsData.patients || []);
       }
 
       // Fetch recent prescriptions from API
-      const prescriptionsResponse = await fetch("/api/prescriptions/recent");
+      const prescriptionsResponse = await fetch("/api/prescriptions/doctor", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (prescriptionsResponse.ok) {
         const prescriptionsData = await prescriptionsResponse.json();
         setRecentPrescriptions(prescriptionsData.prescriptions || []);
@@ -200,21 +238,56 @@ export default function DoctorPrescriptionPage() {
     setIsLoading(true);
 
     try {
-      // Here you would make an API call to save the prescription
+      // Get auth token
+      const token = localStorage.getItem("auth_token");
+
+      if (!token) {
+        showError("Please log in again");
+        router.push("/");
+        return;
+      }
+
+      // Prepare prescription data
       const prescriptionData = {
         patientId: selectedPatient.id,
-        patientName: getPatientName(selectedPatient),
-        medications,
+        medications: medications.map((med) => ({
+          drugName: med.drugName,
+          dosage: med.dosage,
+          frequency: med.frequency,
+          duration: med.duration,
+          instructions: med.instructions,
+          quantity: med.quantity || 30,
+        })),
         diagnosis,
         notes,
-        dateIssued: new Date().toISOString().split("T")[0],
-        status: "issued",
       };
 
-      // Mock API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Call API to save prescription
+      const response = await fetch("/api/prescriptions/doctor", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(prescriptionData),
+      });
 
-      showSuccess("Prescription created successfully!");
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Failed to create prescription");
+      }
+
+      const blockchainInfo =
+        result.blockchain && result.blockchain.length > 0
+          ? ` Blockchain verified: ${result.blockchain[0].transactionId}`
+          : "";
+
+      showSuccess(
+        `Prescription created successfully! ${
+          result.prescriptions?.length || 0
+        } medication(s) prescribed.${blockchainInfo}`
+      );
 
       // Reset form
       setSelectedPatient(null);
@@ -288,32 +361,42 @@ export default function DoctorPrescriptionPage() {
                       <User className="w-8 h-8 text-gray-400" />
                       <div>
                         <h3 className="text-sm font-medium text-gray-900">
-                          {prescription.patientName}
+                          {prescription.patient?.name || "Unknown Patient"}
                         </h3>
                         <p className="text-sm text-gray-500">
-                          {prescription.diagnosis}
+                          {prescription.medication} - {prescription.dosage}
                         </p>
                       </div>
                     </div>
                     <div className="mt-2 flex items-center space-x-4 text-xs text-gray-500">
                       <span className="flex items-center">
                         <Calendar className="w-3 h-3 mr-1" />
-                        {prescription.dateIssued}
+                        {new Date(prescription.dateIssued).toLocaleDateString()}
                       </span>
                       <span className="flex items-center">
                         <Pill className="w-3 h-3 mr-1" />
-                        {prescription.medications.length} medication(s)
+                        {prescription.quantity} units
                       </span>
+                      {prescription.blockchainHash && (
+                        <span className="flex items-center text-green-600">
+                          <Shield className="w-3 h-3 mr-1" />
+                          Verified
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     <span
                       className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        prescription.status === "issued"
-                          ? "bg-green-100 text-green-800"
-                          : prescription.status === "dispensed"
+                        prescription.status === "pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : prescription.status === "verified"
                           ? "bg-blue-100 text-blue-800"
-                          : "bg-yellow-100 text-yellow-800"
+                          : prescription.status === "dispensed"
+                          ? "bg-green-100 text-green-800"
+                          : prescription.status === "rejected"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-gray-100 text-gray-800"
                       }`}
                     >
                       {prescription.status.charAt(0).toUpperCase() +

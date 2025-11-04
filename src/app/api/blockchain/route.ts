@@ -30,19 +30,19 @@ function verifyToken(request: NextRequest) {
 // GET: Get blockchain sync status and network info
 export async function GET(request: NextRequest) {
   try {
-    // Verify authentication (admin only for blockchain operations)
+    // Verify authentication (allow all authenticated users to view status)
     const user = verifyToken(request);
-    if (!user || (user.role !== "admin" && user.role !== "pharmacist")) {
+    if (!user) {
       return NextResponse.json(
-        { error: "Unauthorized. Admin or Pharmacist access required." },
-        { status: 403 }
+        { error: "Unauthorized. Please log in to view blockchain status." },
+        { status: 401 }
       );
     }
 
     const { searchParams } = new URL(request.url);
     const action = searchParams.get("action");
 
-    // Get sync status
+    // Get sync status (read-only, available to all authenticated users)
     if (action === "status" || !action) {
       const syncStatus = blockchainSyncService.getSyncStatus();
       const networkInfo = baseClient.getNetworkInfo();

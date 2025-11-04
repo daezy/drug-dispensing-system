@@ -571,20 +571,12 @@ const blockchainConfigSchema = new mongoose.Schema<BlockchainConfig>(
 );
 
 // Add indexes for better performance
-userSchema.index({ email: 1 });
-userSchema.index({ username: 1 });
+// Note: Don't add indexes for fields with unique: true as they already have indexes
 userSchema.index({ role: 1 });
 
-doctorSchema.index({ user_id: 1 });
-doctorSchema.index({ license_number: 1 });
 doctorSchema.index({ verification_status: 1 });
 
-pharmacistSchema.index({ user_id: 1 });
-pharmacistSchema.index({ license_number: 1 });
 pharmacistSchema.index({ verification_status: 1 });
-
-patientSchema.index({ user_id: 1 });
-patientSchema.index({ medical_record_number: 1 });
 
 drugSchema.index({ name: 1 });
 drugSchema.index({ expiry_date: 1 });

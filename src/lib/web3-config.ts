@@ -1,6 +1,6 @@
 import { defaultWagmiConfig } from "@web3modal/wagmi/react/config";
 import { createWeb3Modal } from "@web3modal/wagmi/react";
-import { mainnet, base } from "wagmi/chains";
+import { baseSepolia, sepolia } from "wagmi/chains";
 
 // Get projectId from https://cloud.walletconnect.com
 export const projectId =
@@ -16,8 +16,9 @@ const metadata = {
   icons: ["https://avatars.githubusercontent.com/u/37784886"],
 };
 
-// Support only Ethereum Mainnet and Base
-export const chains = [mainnet, base] as const;
+// Support Base Sepolia (testnet) and Sepolia (Ethereum testnet)
+// Base Sepolia is the primary network for this application
+export const chains = [baseSepolia, sepolia] as const;
 
 export const wagmiConfig = defaultWagmiConfig({
   chains,
@@ -44,8 +45,13 @@ export function initializeWeb3Modal() {
       });
       modalInitialized = true;
       console.log("✅ Web3Modal initialized successfully");
+      console.log(
+        "🌐 Supported networks: Base Sepolia (84532), Sepolia (11155111)"
+      );
+      console.log("📡 RPC Endpoint: https://sepolia.base.org");
     } catch (error) {
       console.error("❌ Error initializing Web3Modal:", error);
+      console.error("💡 Check NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID in .env");
     }
   }
   return modal;

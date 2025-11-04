@@ -46,7 +46,13 @@ export function BlockchainStatus({ className = "" }: BlockchainStatusProps) {
   // Fetch blockchain status
   const fetchStatus = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token =
+        localStorage.getItem("token") || localStorage.getItem("auth_token");
+
+      if (!token) {
+        throw new Error("Authentication required. Please log in.");
+      }
+
       const response = await fetch("/api/blockchain?action=status", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -54,14 +60,26 @@ export function BlockchainStatus({ className = "" }: BlockchainStatusProps) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch blockchain status");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error ||
+            `Failed to fetch blockchain status (${response.status}). Check network configuration.`
+        );
       }
 
       const result = await response.json();
+
+      if (!result.success || !result.data) {
+        throw new Error("Invalid response from blockchain API");
+      }
+
       setData(result.data);
       setError(null);
+      console.log("✅ Blockchain status updated:", result.data.network.name);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      setError(errorMessage);
+      console.error("❌ Blockchain status error:", errorMessage);
     } finally {
       setLoading(false);
     }
@@ -94,10 +112,31 @@ export function BlockchainStatus({ className = "" }: BlockchainStatusProps) {
 
   if (error) {
     return (
-      <div className={`bg-white rounded-lg shadow p-6 ${className}`}>
-        <div className="flex items-center space-x-2 text-red-600">
-          <AlertCircle className="w-5 h-5" />
-          <span>Error: {error}</span>
+      <div
+        className={`bg-white dark:bg-gray-800 rounded-lg shadow p-6 ${className}`}
+      >
+        <div className="space-y-3">
+          <div className="flex items-center space-x-2 text-red-600 dark:text-red-400">
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <span className="font-semibold">Blockchain Connection Error</span>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{error}</p>
+          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <p className="text-xs text-blue-800 dark:text-blue-300 mb-2 font-semibold">
+              Expected Configuration:
+            </p>
+            <ul className="text-xs text-blue-700 dark:text-blue-400 space-y-1">
+              <li>• Network: Base Sepolia (Chain ID: 84532)</li>
+              <li>• RPC: https://sepolia.base.org</li>
+              <li>• Auth: Login required (all roles supported)</li>
+            </ul>
+          </div>
+          <button
+            onClick={fetchStatus}
+            className="mt-3 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
+          >
+            Retry Connection
+          </button>
         </div>
       </div>
     );
@@ -113,147 +152,81 @@ export function BlockchainStatus({ className = "" }: BlockchainStatusProps) {
       : "https://basescan.org";
 
   return (
-    <div className={`bg-white rounded-lg shadow ${className}`}>
-      <div className="p-6 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-          <Activity className="w-5 h-5 mr-2 text-blue-500" />
-          Blockchain Status
-        </h3>
-      </div>
-
-      <div className="p-6 space-y-6">
-        {/* Sync Status */}
-        <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-3">
-            Synchronization
-          </h4>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Status</span>
-              <div className="flex items-center space-x-2">
-                {data.sync.isSyncing ? (
-                  <>
-                    <Activity className="w-4 h-4 animate-spin text-blue-500" />
-                    <span className="text-sm font-medium text-blue-600">
-                      Syncing
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm font-medium text-gray-600">
-                      Idle
-                    </span>
-                  </>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Event Listener</span>
-              <div className="flex items-center space-x-2">
-                {data.sync.isListenerRunning ? (
-                  <>
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                    <span className="text-sm font-medium text-green-600">
-                      Running
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                    <span className="text-sm font-medium text-gray-600">
-                      Stopped
-                    </span>
-                  </>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">
-                Last Processed Block
-              </span>
-              <span className="text-sm font-mono text-gray-900">
-                {data.sync.lastProcessedBlock}
-              </span>
-            </div>
-          </div>
+    <div
+      className={`bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 ${className}`}
+    >
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+            Blockchain
+          </h3>
         </div>
-
-        {/* Network Info */}
-        <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Network</h4>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Name</span>
-              <span className="text-sm font-medium text-gray-900">
-                {data.network.name}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Chain ID</span>
-              <span className="text-sm font-mono text-gray-900">
-                {data.network.chainId}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Current Block</span>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-mono text-gray-900">
-                  {data.currentBlock}
-                </span>
-                <a
-                  href={`${blockExplorerUrl}/block/${data.currentBlock}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:text-blue-600"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </div>
-            </div>
-
-            {data.network.accountAddress && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Account</span>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm font-mono text-gray-900">
-                    {data.network.accountAddress.slice(0, 6)}...
-                    {data.network.accountAddress.slice(-4)}
-                  </span>
-                  <button
-                    onClick={() =>
-                      copyToClipboard(data.network.accountAddress!)
-                    }
-                    className="text-gray-500 hover:text-gray-700"
-                    title="Copy address"
-                  >
-                    <Copy className="w-4 h-4" />
-                  </button>
-                  <a
-                    href={`${blockExplorerUrl}/address/${data.network.accountAddress}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:text-blue-600"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Refresh Button */}
         <button
           onClick={fetchStatus}
-          className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+          className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
         >
-          Refresh Status
+          Refresh
         </button>
+      </div>
+
+      {/* Content */}
+      <div className="p-4 space-y-3">
+        {/* Network */}
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-gray-600 dark:text-gray-400">
+            Network
+          </span>
+          <span className="text-xs font-medium text-gray-900 dark:text-white">
+            {data.network.name}
+          </span>
+        </div>
+
+        {/* Chain ID */}
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-gray-600 dark:text-gray-400">
+            Chain ID
+          </span>
+          <span className="text-xs font-mono text-gray-900 dark:text-white">
+            {data.network.chainId}
+          </span>
+        </div>
+
+        {/* Current Block */}
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-gray-600 dark:text-gray-400">
+            Block
+          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-mono text-gray-900 dark:text-white">
+              {data.currentBlock}
+            </span>
+            <a
+              href={`${blockExplorerUrl}/block/${data.currentBlock}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
+            >
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+
+        {/* Sync Status - Only show if syncing */}
+        {data.sync.isSyncing && (
+          <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
+            <span className="text-xs text-gray-600 dark:text-gray-400">
+              Status
+            </span>
+            <div className="flex items-center gap-1.5">
+              <Activity className="w-3 h-3 animate-spin text-blue-500" />
+              <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                Syncing...
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
