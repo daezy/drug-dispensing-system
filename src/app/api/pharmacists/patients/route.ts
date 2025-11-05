@@ -24,19 +24,11 @@ export const GET = withPharmacistAuth(async (request, user) => {
       );
     }
 
-    // Find all unique patients who have prescriptions (verified/dispensed) available
-    const prescriptions = await PrescriptionModel.find({
-      status: { $in: ["verified", "dispensed", "pending"] },
-    })
-      .distinct("patient_id")
-      .limit(100)
-      .lean();
-
-    // Get full patient details
-    const patients = await PatientModel.find({
-      _id: { $in: prescriptions },
-    })
+    // Get all patients (pharmacists should be able to look up any patient)
+    // Limit to 100 for performance
+    const patients = await PatientModel.find({})
       .populate("user_id")
+      .limit(100)
       .lean();
 
     // Format patients for frontend
