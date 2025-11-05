@@ -117,20 +117,18 @@ export default function PharmacistDispensePage() {
         return;
       }
 
-      // Fetch pending prescriptions from API
-      const response = await fetch(
-        "/api/prescriptions/pharmacist?status=verified",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      // Fetch pending and verified prescriptions from API
+      const response = await fetch("/api/prescriptions/pharmacist", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
-        // Map the prescriptions to the expected format
-        const formattedPrescriptions = (data.prescriptions || []).map(
-          (p: any) => ({
+        // Map the prescriptions to the expected format, filter out dispensed ones
+        const formattedPrescriptions = (data.prescriptions || [])
+          .filter((p: any) => p.status !== "dispensed") // Only show prescriptions that can be dispensed
+          .map((p: any) => ({
             id: p.id,
             prescriptionNumber: p.prescriptionNumber,
             patientName: p.patient?.name || "Unknown",
@@ -161,8 +159,7 @@ export default function PharmacistDispensePage() {
             notes: p.notes || "",
             status: p.status === "verified" ? "pending" : p.status,
             priority: "normal" as const,
-          })
-        );
+          }));
         setPrescriptions(formattedPrescriptions);
       } else {
         showError("Failed to load pending prescriptions");

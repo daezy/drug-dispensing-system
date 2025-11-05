@@ -93,9 +93,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (prescription.status !== "verified") {
+    // Allow both pending and verified prescriptions to be dispensed
+    if (
+      prescription.status !== "verified" &&
+      prescription.status !== "pending"
+    ) {
       return NextResponse.json(
-        { error: "Prescription must be verified before dispensing" },
+        { error: "Prescription must be verified or pending before dispensing" },
         { status: 400 }
       );
     }
