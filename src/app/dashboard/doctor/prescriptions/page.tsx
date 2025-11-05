@@ -284,20 +284,8 @@ export default function DoctorPrescriptionsListPage() {
 
   return (
     <ProtectedRoute allowedRoles={["doctor"]}>
-      <DashboardLayout title="Prescriptions History" role="doctor">
+      <DashboardLayout title="Prescriptions Management" role="doctor">
         <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Prescriptions Management
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                Search for patients and manage prescriptions
-              </p>
-            </div>
-          </div>
-
           {/* Patient Search Card - Prominent Section */}
           <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl border-2 border-green-200 dark:border-green-800 p-6">
             <div className="flex items-center justify-between mb-4">
