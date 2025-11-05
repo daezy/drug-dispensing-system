@@ -48,6 +48,12 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
       serverSelectionTimeoutMS: 30000, // 30 seconds for MongoDB Atlas
       socketTimeoutMS: 45000,
       family: 4, // Use IPv4, skip trying IPv6
+      retryWrites: true,
+      retryReads: true,
+      ssl: true, // Explicitly enable SSL
+      tls: true, // Enable TLS
+      tlsAllowInvalidCertificates: false, // Validate certificates
+      tlsAllowInvalidHostnames: false, // Validate hostnames
     };
 
     cached.promise = mongoose
@@ -58,6 +64,9 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
       })
       .catch((error) => {
         console.error("❌ MongoDB connection error:", error);
+        if (cached) {
+          cached.promise = null; // Reset promise on error
+        }
         throw error;
       });
   }
