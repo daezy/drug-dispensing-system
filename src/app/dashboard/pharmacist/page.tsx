@@ -17,6 +17,7 @@ import {
   Users,
   ShoppingCart,
   FileText,
+  Shield,
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -168,6 +169,28 @@ export default function PharmacistDashboard() {
 
           {/* Stats Grid - Compact & Modern */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Blockchain Security Card */}
+            <div className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow text-white">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Shield size={20} className="text-white" />
+                    <span className="text-sm font-medium">Secure</span>
+                  </div>
+                  <p className="text-2xl font-bold mb-1">
+                    Blockchain Verified
+                  </p>
+                  <p className="text-5xl font-bold mb-2">0</p>
+                  <p className="text-sm text-blue-100">
+                    Prescriptions secured
+                  </p>
+                </div>
+                <div className="flex items-center">
+                  <CheckCircle size={24} className="text-white" />
+                </div>
+              </div>
+            </div>
+
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
