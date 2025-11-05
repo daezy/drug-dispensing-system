@@ -368,15 +368,28 @@ export default function PharmacistDashboard() {
                     <Pill className="mr-2" size={18} />
                     Dispense Drugs
                   </button>
-                  <button className="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center">
+                  <button
+                    onClick={() =>
+                      router.push("/dashboard/pharmacist/inventory")
+                    }
+                    className="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center"
+                  >
                     <Package className="mr-2" size={16} />
                     Manage Inventory
                   </button>
-                  <button className="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center">
+                  <button
+                    onClick={() => router.push("/dashboard/pharmacist/reports")}
+                    className="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center"
+                  >
                     <FileText className="mr-2" size={16} />
                     View Reports
                   </button>
-                  <button className="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center">
+                  <button
+                    onClick={() =>
+                      router.push("/dashboard/pharmacist/patients")
+                    }
+                    className="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center"
+                  >
                     <Users className="mr-2" size={16} />
                     Patient Lookup
                   </button>
