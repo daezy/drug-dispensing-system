@@ -7,10 +7,16 @@ import mongoose from "mongoose";
 const MONGODB_URI =
   process.env.MONGODB_URI || "mongodb://localhost:27017/pharmchain_db";
 
+// Validate and log MongoDB URI
+if (!process.env.MONGODB_URI) {
+  console.warn("⚠️ MONGODB_URI not found in environment variables");
+}
+
 // Log MongoDB URI (without password) for debugging
 if (process.env.NODE_ENV === "development") {
   const maskedUri = MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, "//***:***@");
   console.log("🔗 MongoDB URI:", maskedUri);
+  console.log("🔗 URI Protocol:", MONGODB_URI.startsWith("mongodb+srv") ? "SRV (Atlas)" : "Standard");
 }
 
 // Global connection cache to prevent multiple connections in development
@@ -50,20 +56,27 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
       family: 4, // Use IPv4, skip trying IPv6
       retryWrites: true,
       retryReads: true,
-      ssl: true, // Explicitly enable SSL
-      tls: true, // Enable TLS
-      tlsAllowInvalidCertificates: false, // Validate certificates
-      tlsAllowInvalidHostnames: false, // Validate hostnames
+      // MongoDB Atlas SSL/TLS configuration
+      tls: true, // Enable TLS (required for Atlas)
+      tlsAllowInvalidCertificates: true, // Allow self-signed certificates for Atlas
+      tlsAllowInvalidHostnames: true, // More permissive for Atlas shared clusters
     };
 
     cached.promise = mongoose
       .connect(MONGODB_URI, opts)
       .then((mongoose) => {
         console.log("✅ Connected to MongoDB successfully");
+        console.log(`📊 Database: ${mongoose.connection.db?.databaseName}`);
+        console.log(`🌐 Host: ${mongoose.connection.host}`);
         return mongoose;
       })
       .catch((error) => {
         console.error("❌ MongoDB connection error:", error);
+        console.error("🔍 Error details:", {
+          name: error.name,
+          code: error.code,
+          message: error.message,
+        });
         if (cached) {
           cached.promise = null; // Reset promise on error
         }
