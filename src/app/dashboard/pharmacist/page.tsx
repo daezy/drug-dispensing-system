@@ -28,6 +28,7 @@ interface DashboardStats {
   lowStockItems: number;
   ordersToday: number;
   totalInventory: number;
+  dispensedPrescriptions: number;
 }
 
 interface PendingPrescription {
@@ -61,6 +62,7 @@ export default function PharmacistDashboard() {
     lowStockItems: 0,
     ordersToday: 0,
     totalInventory: 0,
+    dispensedPrescriptions: 0,
   });
 
   const [pendingPrescriptions, setPendingPrescriptions] = useState<
@@ -70,6 +72,36 @@ export default function PharmacistDashboard() {
   const [lowStockItems, setLowStockItems] = useState<InventoryItem[]>([]);
 
   const { user } = useAuth();
+
+  // Fetch dispensed prescriptions count
+  useEffect(() => {
+    const fetchDispensedCount = async () => {
+      try {
+        const token = localStorage.getItem("auth_token");
+        if (!token) return;
+
+        const response = await fetch("/api/prescriptions/pharmacist?status=dispensed", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setStats((prev) => ({
+            ...prev,
+            dispensedPrescriptions: data.prescriptions?.length || 0,
+          }));
+        }
+      } catch (error) {
+        console.error("Failed to fetch dispensed prescriptions:", error);
+      }
+    };
+
+    if (user?.role === "pharmacist") {
+      fetchDispensedCount();
+    }
+  }, [user]);
 
   const getUrgencyColor = (urgency: PendingPrescription["urgency"]) => {
     switch (urgency) {
@@ -177,13 +209,9 @@ export default function PharmacistDashboard() {
                     <Shield size={20} className="text-white" />
                     <span className="text-sm font-medium">Secure</span>
                   </div>
-                  <p className="text-2xl font-bold mb-1">
-                    Blockchain Verified
-                  </p>
-                  <p className="text-5xl font-bold mb-2">0</p>
-                  <p className="text-sm text-blue-100">
-                    Prescriptions secured
-                  </p>
+                  <p className="text-2xl font-bold mb-1">Blockchain Verified</p>
+                  <p className="text-5xl font-bold mb-2">{stats.dispensedPrescriptions}</p>
+                  <p className="text-sm text-blue-100">Prescriptions secured</p>
                 </div>
                 <div className="flex items-center">
                   <CheckCircle size={24} className="text-white" />
