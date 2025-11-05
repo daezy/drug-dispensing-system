@@ -62,8 +62,87 @@ export default function DoctorDashboard() {
 
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [recentPatients, setRecentPatients] = useState<Patient[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { user } = useAuth();
+
+  useEffect(() => {
+    if (user && user.role === "doctor") {
+      loadDashboardData();
+    }
+  }, [user]);
+
+  const loadDashboardData = async () => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        return;
+      }
+
+      // Fetch patients count
+      const patientsResponse = await fetch("/api/doctors/patients", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (patientsResponse.ok) {
+        const patientsData = await patientsResponse.json();
+        const patientsList = patientsData.patients || [];
+
+        setStats((prev) => ({
+          ...prev,
+          totalPatients: patientsList.length,
+        }));
+
+        // Set recent patients (first 5)
+        setRecentPatients(
+          patientsList.slice(0, 5).map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            age: p.age || 0,
+            gender: "N/A",
+            lastVisit: "N/A",
+            condition: "N/A",
+            status: "active",
+          }))
+        );
+      }
+
+      // Fetch prescriptions count
+      const prescriptionsResponse = await fetch("/api/prescriptions/doctor", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (prescriptionsResponse.ok) {
+        const prescriptionsData = await prescriptionsResponse.json();
+        const prescriptionsList = prescriptionsData.prescriptions || [];
+
+        // Count active (non-dispensed) prescriptions
+        const activePrescriptions = prescriptionsList.filter(
+          (p: any) => p.status !== "dispensed" && p.status !== "expired"
+        ).length;
+
+        // Count blockchain verified prescriptions
+        const blockchainVerified = prescriptionsList.filter(
+          (p: any) => p.blockchainHash || p.transactionId
+        ).length;
+
+        setStats((prev) => ({
+          ...prev,
+          activePrescriptions,
+          blockchainVerified,
+        }));
+      }
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getActivityIcon = (type: RecentActivity["type"]) => {
     switch (type) {

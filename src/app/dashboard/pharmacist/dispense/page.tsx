@@ -86,11 +86,11 @@ export default function PharmacistDispensePage() {
   // Handle prescription query parameter
   useEffect(() => {
     if (!searchParams) return;
-    
+
     const prescriptionId = searchParams.get("prescription");
     if (prescriptionId && prescriptions.length > 0) {
       // Find and auto-open the prescription
-      const prescription = prescriptions.find(p => p.id === prescriptionId);
+      const prescription = prescriptions.find((p) => p.id === prescriptionId);
       if (prescription) {
         setSelectedPrescription(prescription);
         setShowDispenseModal(true);
@@ -242,7 +242,7 @@ export default function PharmacistDispensePage() {
       setShowDispenseModal(false);
       setSelectedPrescription(null);
       setDispensingNotes("");
-      
+
       // If opened via query param, go back to prescriptions list
       if (searchParams?.get("prescription")) {
         router.push("/dashboard/pharmacist/dispense");
