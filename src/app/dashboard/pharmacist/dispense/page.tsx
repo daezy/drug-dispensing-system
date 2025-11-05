@@ -110,15 +110,65 @@ export default function PharmacistDispensePage() {
     setIsLoading(true);
 
     try {
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        showError("Please log in again");
+        router.push("/login");
+        return;
+      }
+
       // Fetch pending prescriptions from API
-      const response = await fetch("/api/prescriptions/pending");
+      const response = await fetch(
+        "/api/prescriptions/pharmacist?status=verified",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (response.ok) {
         const data = await response.json();
-        setPrescriptions(data.prescriptions || []);
+        // Map the prescriptions to the expected format
+        const formattedPrescriptions = (data.prescriptions || []).map(
+          (p: any) => ({
+            id: p.id,
+            prescriptionNumber: p.prescriptionNumber,
+            patientName: p.patient?.name || "Unknown",
+            patientId: p.patient?.id || "N/A",
+            patientAge: p.patient?.dateOfBirth
+              ? new Date().getFullYear() -
+                new Date(p.patient.dateOfBirth).getFullYear()
+              : 0,
+            patientPhone: p.patient?.phone || "N/A",
+            doctorName: p.doctor?.name || "Unknown",
+            doctorLicense: p.doctor?.licenseNumber || "N/A",
+            diagnosis: p.instructions || "No diagnosis provided",
+            dateIssued: p.dateIssued,
+            medications: [
+              {
+                id: p.id + "-med-1",
+                drugName: p.medication,
+                dosage: p.dosage,
+                frequency: p.frequency,
+                duration: p.duration,
+                instructions: p.instructions || "",
+                quantityPrescribed: p.quantity,
+                quantityAvailable: p.quantity, // Assume available for now
+                quantityToDispense: p.quantity,
+                verified: false,
+              },
+            ],
+            notes: p.notes || "",
+            status: p.status === "verified" ? "pending" : p.status,
+            priority: "normal" as const,
+          })
+        );
+        setPrescriptions(formattedPrescriptions);
       } else {
         showError("Failed to load pending prescriptions");
       }
     } catch (error) {
+      console.error("Failed to load pending prescriptions:", error);
       showError("Failed to load pending prescriptions");
     } finally {
       setIsLoading(false);
@@ -229,7 +279,44 @@ export default function PharmacistDispensePage() {
         return;
       }
 
-      // Update prescription status
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        showError("Please log in again");
+        router.push("/login");
+        return;
+      }
+
+      // Calculate total quantity to dispense
+      const totalQuantity = selectedPrescription.medications.reduce(
+        (sum, med) => sum + med.quantityToDispense,
+        0
+      );
+
+      // Call the dispense API
+      const response = await fetch("/api/prescriptions/dispense", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          prescriptionId: selectedPrescription.id,
+          quantityDispensed: totalQuantity,
+          notes:
+            dispensingNotes ||
+            `Dispensed ${selectedPrescription.prescriptionNumber}`,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        showError(error.error || "Failed to dispense prescription");
+        return;
+      }
+
+      const data = await response.json();
+
+      // Update prescription status locally
       setPrescriptions((prev) =>
         prev.map((p) =>
           p.id === selectedPrescription.id ? { ...p, status: "dispensed" } : p
@@ -239,15 +326,27 @@ export default function PharmacistDispensePage() {
       showSuccess(
         `Prescription ${selectedPrescription.prescriptionNumber} dispensed successfully`
       );
+
+      // Show low stock alert if present
+      if (data.data?.lowStockAlert) {
+        showWarning(
+          `Low stock alert: ${data.data.lowStockAlert.drug} - ${data.data.lowStockAlert.currentStock} units remaining`
+        );
+      }
+
       setShowDispenseModal(false);
       setSelectedPrescription(null);
       setDispensingNotes("");
+
+      // Reload prescriptions to get updated list
+      await loadPendingPrescriptions();
 
       // If opened via query param, go back to prescriptions list
       if (searchParams?.get("prescription")) {
         router.push("/dashboard/pharmacist/dispense");
       }
     } catch (error) {
+      console.error("Failed to complete dispensing:", error);
       showError("Failed to complete dispensing");
     }
   };
