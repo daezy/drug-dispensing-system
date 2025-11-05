@@ -58,9 +58,10 @@ export const GET = withPharmacistAuth(async (request, user) => {
         return {
           id: patient._id.toString(),
           name: userInfo?.username || "Unknown Patient",
-          email: userInfo?.email || patient.contact_info?.email,
-          phone: patient.contact_info?.phone,
-          dateOfBirth: patient.date_of_birth,
+          email: userInfo?.email || patient.contact_info?.email || "N/A",
+          phone: patient.contact_info?.phone || "N/A",
+          dateOfBirth: patient.date_of_birth || new Date().toISOString(),
+          address: patient.address || "N/A",
           age: patient.date_of_birth
             ? Math.floor(
                 (Date.now() - new Date(patient.date_of_birth).getTime()) /
@@ -71,9 +72,11 @@ export const GET = withPharmacistAuth(async (request, user) => {
           allergies: patient.allergies,
           medicalHistory: patient.medical_history,
           emergencyContact: patient.emergency_contact,
+          prescriptionsCount: prescriptionCount,
           prescriptionCount,
           activePrescriptionCount,
           insuranceNumber: patient.contact_info?.insuranceNumber,
+          lastVisit: new Date().toISOString(), // TODO: Track actual last visit from prescription history
         };
       })
     );

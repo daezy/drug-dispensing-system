@@ -203,13 +203,15 @@ export default function PharmacistPatientsPage() {
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                       <Phone className="w-4 h-4" />
-                      <span>{patient.phone}</span>
+                      <span>{patient.phone || "N/A"}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                       <Calendar className="w-4 h-4" />
                       <span>
                         Last visit:{" "}
-                        {new Date(patient.lastVisit).toLocaleDateString()}
+                        {patient.lastVisit
+                          ? new Date(patient.lastVisit).toLocaleDateString()
+                          : "N/A"}
                       </span>
                     </div>
                   </div>
@@ -319,7 +321,7 @@ export default function PharmacistPatientsPage() {
                           Phone
                         </p>
                         <p className="text-gray-900 dark:text-white">
-                          {selectedPatient.phone}
+                          {selectedPatient.phone || "N/A"}
                         </p>
                       </div>
                     </div>
@@ -330,7 +332,7 @@ export default function PharmacistPatientsPage() {
                           Address
                         </p>
                         <p className="text-gray-900 dark:text-white">
-                          {selectedPatient.address}
+                          {selectedPatient.address || "N/A"}
                         </p>
                       </div>
                     </div>
@@ -393,7 +395,11 @@ export default function PharmacistPatientsPage() {
                     </div>
                     <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                       Last visit:{" "}
-                      {new Date(selectedPatient.lastVisit).toLocaleDateString()}
+                      {selectedPatient.lastVisit
+                        ? new Date(
+                            selectedPatient.lastVisit
+                          ).toLocaleDateString()
+                        : "N/A"}
                     </div>
                   </div>
                 </div>
