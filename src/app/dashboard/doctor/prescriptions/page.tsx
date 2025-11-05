@@ -102,10 +102,10 @@ export default function DoctorPrescriptionsListPage() {
 
     const searchLower = patientSearchTerm.toLowerCase();
     const filtered = patients.filter((patient) => {
-      const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
+      const fullName = `${patient.firstName || ""} ${patient.lastName || ""}`.toLowerCase();
       return (
         fullName.includes(searchLower) ||
-        patient.email.toLowerCase().includes(searchLower) ||
+        (patient.email || "").toLowerCase().includes(searchLower) ||
         (patient.phone && patient.phone.includes(patientSearchTerm)) ||
         (patient.patientId &&
           patient.patientId.toLowerCase().includes(searchLower))
@@ -235,13 +235,13 @@ export default function DoctorPrescriptionsListPage() {
 
   const filteredPrescriptions = prescriptions.filter((prescription) => {
     const matchesSearch =
-      prescription.patientName
+      (prescription.patientName || "")
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      prescription.prescriptionNumber
+      (prescription.prescriptionNumber || "")
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      prescription.diagnosis.toLowerCase().includes(searchTerm.toLowerCase());
+      (prescription.diagnosis || "").toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus =
       statusFilter === "all" || prescription.status === statusFilter;
@@ -649,10 +649,10 @@ export default function DoctorPrescriptionsListPage() {
                   {/* Medications Summary */}
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                     <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Medications ({prescription.medications.length})
+                      Medications ({prescription.medications?.length || 0})
                     </h4>
                     <div className="flex flex-wrap gap-2">
-                      {prescription.medications.map((med, index) => (
+                      {(prescription.medications || []).map((med, index) => (
                         <span
                           key={index}
                           className="inline-flex items-center gap-1 px-3 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-full text-sm font-medium"
@@ -788,7 +788,7 @@ export default function DoctorPrescriptionsListPage() {
                       Medications
                     </h4>
                     <div className="space-y-3">
-                      {selectedPrescription.medications.map((med, index) => (
+                      {(selectedPrescription.medications || []).map((med, index) => (
                         <div
                           key={index}
                           className="p-4 border border-gray-200 dark:border-gray-700 rounded-xl space-y-2 bg-gray-50 dark:bg-gray-700"
