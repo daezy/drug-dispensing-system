@@ -135,10 +135,10 @@ export default function PharmacistPrescriptionsPage() {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (p) =>
-          p.prescriptionNumber.toLowerCase().includes(term) ||
+          (p.prescriptionNumber || "").toLowerCase().includes(term) ||
           (p.patient?.name || "").toLowerCase().includes(term) ||
           (p.doctor?.name || "").toLowerCase().includes(term) ||
-          p.medication.toLowerCase().includes(term)
+          (p.medication || "").toLowerCase().includes(term)
       );
     }
 

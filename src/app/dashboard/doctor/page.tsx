@@ -206,7 +206,7 @@ export default function DoctorDashboard() {
                       className="px-6 py-2.5 bg-white text-green-600 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
                     >
                       <Pill className="inline-block mr-2" size={18} />
-                      Manage Prescriptions
+                      Add Prescriptions
                     </button>
                     <button
                       onClick={() => router.push("/dashboard/doctor/patients")}

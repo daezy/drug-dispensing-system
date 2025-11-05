@@ -102,7 +102,9 @@ export default function DoctorPrescriptionsListPage() {
 
     const searchLower = patientSearchTerm.toLowerCase();
     const filtered = patients.filter((patient) => {
-      const fullName = `${patient.firstName || ""} ${patient.lastName || ""}`.toLowerCase();
+      const fullName = `${patient.firstName || ""} ${
+        patient.lastName || ""
+      }`.toLowerCase();
       return (
         fullName.includes(searchLower) ||
         (patient.email || "").toLowerCase().includes(searchLower) ||
@@ -241,7 +243,9 @@ export default function DoctorPrescriptionsListPage() {
       (prescription.prescriptionNumber || "")
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      (prescription.diagnosis || "").toLowerCase().includes(searchTerm.toLowerCase());
+      (prescription.diagnosis || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
 
     const matchesStatus =
       statusFilter === "all" || prescription.status === statusFilter;
@@ -788,42 +792,44 @@ export default function DoctorPrescriptionsListPage() {
                       Medications
                     </h4>
                     <div className="space-y-3">
-                      {(selectedPrescription.medications || []).map((med, index) => (
-                        <div
-                          key={index}
-                          className="p-4 border border-gray-200 dark:border-gray-700 rounded-xl space-y-2 bg-gray-50 dark:bg-gray-700"
-                        >
-                          <h5 className="font-medium text-lg text-gray-900 dark:text-white">
-                            {med.drugName}
-                          </h5>
-                          <div className="grid grid-cols-2 gap-2 text-sm">
-                            <p className="text-gray-700 dark:text-gray-300">
-                              <span className="text-gray-600 dark:text-gray-400">
-                                Dosage:
-                              </span>{" "}
-                              {med.dosage}
-                            </p>
-                            <p className="text-gray-700 dark:text-gray-300">
-                              <span className="text-gray-600 dark:text-gray-400">
-                                Frequency:
-                              </span>{" "}
-                              {med.frequency}
-                            </p>
-                            <p className="text-gray-700 dark:text-gray-300">
-                              <span className="text-gray-600 dark:text-gray-400">
-                                Duration:
-                              </span>{" "}
-                              {med.duration}
-                            </p>
-                            <p className="text-gray-700 dark:text-gray-300">
-                              <span className="text-gray-600 dark:text-gray-400">
-                                Quantity:
-                              </span>{" "}
-                              {med.quantity}
-                            </p>
+                      {(selectedPrescription.medications || []).map(
+                        (med, index) => (
+                          <div
+                            key={index}
+                            className="p-4 border border-gray-200 dark:border-gray-700 rounded-xl space-y-2 bg-gray-50 dark:bg-gray-700"
+                          >
+                            <h5 className="font-medium text-lg text-gray-900 dark:text-white">
+                              {med.drugName}
+                            </h5>
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                              <p className="text-gray-700 dark:text-gray-300">
+                                <span className="text-gray-600 dark:text-gray-400">
+                                  Dosage:
+                                </span>{" "}
+                                {med.dosage}
+                              </p>
+                              <p className="text-gray-700 dark:text-gray-300">
+                                <span className="text-gray-600 dark:text-gray-400">
+                                  Frequency:
+                                </span>{" "}
+                                {med.frequency}
+                              </p>
+                              <p className="text-gray-700 dark:text-gray-300">
+                                <span className="text-gray-600 dark:text-gray-400">
+                                  Duration:
+                                </span>{" "}
+                                {med.duration}
+                              </p>
+                              <p className="text-gray-700 dark:text-gray-300">
+                                <span className="text-gray-600 dark:text-gray-400">
+                                  Quantity:
+                                </span>{" "}
+                                {med.quantity}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      )}
                     </div>
                   </div>
                 </div>
