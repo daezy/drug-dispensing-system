@@ -1,15 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
+import { withPatientAuth } from "@/lib/utils/api-middleware";
+import { connectToDatabase } from "@/lib/database/connection";
+import { Models } from "@/lib/database/models";
 
 // GET /api/patients/profile - Get patient profile
-export async function GET(request: NextRequest) {
+export const GET = withPatientAuth(async (request, user) => {
   try {
-    // TODO: Get user ID from session/token
-    // TODO: Fetch from database
+    await connectToDatabase();
 
-    // For now, return empty profile (will be populated from auth context on frontend)
+    const patient = await Models.Patient.findOne({ user_id: user.id })
+      .populate("user_id", "name email")
+      .lean();
+
+    if (!patient) {
+      return NextResponse.json(
+        { success: false, message: "Patient profile not found" },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      profile: {},
+      profile: patient,
     });
   } catch (error) {
     console.error("Error fetching patient profile:", error);
@@ -18,24 +30,58 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
 // PUT /api/patients/profile - Update patient profile
-export async function PUT(request: NextRequest) {
+export const PUT = withPatientAuth(async (request, user) => {
   try {
     const body = await request.json();
 
-    // TODO: Get user ID from session/token
-    // TODO: Validate input
-    // TODO: Update database
+    // Validate allowed fields for update
+    const allowedUpdates = [
+      "date_of_birth",
+      "phone",
+      "address",
+      "allergies",
+      "medical_history",
+      "emergency_contact",
+    ];
+    const updates: any = {};
 
-    console.log("Updating patient profile:", body);
+    for (const field of allowedUpdates) {
+      if (body[field] !== undefined) {
+        updates[field] = body[field];
+      }
+    }
 
-    // For now, return success
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json(
+        { success: false, message: "No valid fields to update" },
+        { status: 400 }
+      );
+    }
+
+    await connectToDatabase();
+
+    const updatedPatient = await Models.Patient.findOneAndUpdate(
+      { user_id: user.id },
+      { $set: updates },
+      { new: true, runValidators: true }
+    )
+      .populate("user_id", "name email")
+      .lean();
+
+    if (!updatedPatient) {
+      return NextResponse.json(
+        { success: false, message: "Patient profile not found" },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
       message: "Profile updated successfully",
-      profile: body,
+      profile: updatedPatient,
     });
   } catch (error) {
     console.error("Error updating patient profile:", error);
@@ -44,4 +90,4 @@ export async function PUT(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

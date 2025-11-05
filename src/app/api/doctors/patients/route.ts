@@ -66,7 +66,7 @@ export const GET = withDoctorAuth(async (request, user) => {
           medicalHistory: patient.medical_history,
           emergencyContact: patient.emergency_contact,
           prescriptionCount,
-          lastVisit: null, // TODO: Track visits separately
+          lastVisit: null, // Visits tracking requires separate appointments/visits collection
         };
       })
     );

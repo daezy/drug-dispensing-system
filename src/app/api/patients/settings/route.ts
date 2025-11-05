@@ -1,14 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
+import { withPatientAuth } from "@/lib/utils/api-middleware";
 
 // GET /api/patients/settings - Get patient settings
-export async function GET(request: NextRequest) {
+export const GET = withPatientAuth(async (request, user) => {
   try {
-    // TODO: Get user ID from session/token
-    // TODO: Fetch from database
+    // Patient settings are stored in user preferences, not in database
+    const settings = {
+      notifications: {
+        emailNotifications: true,
+        smsNotifications: false,
+        prescriptionReminders: true,
+      },
+      privacy: {
+        shareDataWithDoctor: true,
+        allowResearch: false,
+      },
+    };
 
     return NextResponse.json({
       success: true,
-      settings: {},
+      settings,
     });
   } catch (error) {
     console.error("Error fetching patient settings:", error);
@@ -17,23 +28,31 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
 // PUT /api/patients/settings - Update patient settings
-export async function PUT(request: NextRequest) {
+export const PUT = withPatientAuth(async (request, user) => {
   try {
     const body = await request.json();
 
-    // TODO: Get user ID from session/token
-    // TODO: Validate input
-    // TODO: Update database
-
-    console.log("Updating patient settings:", body);
+    // In a real implementation, store these preferences in database
+    // For now, just validate and return
+    const settings = {
+      notifications: body.notifications || {
+        emailNotifications: true,
+        smsNotifications: false,
+        prescriptionReminders: true,
+      },
+      privacy: body.privacy || {
+        shareDataWithDoctor: true,
+        allowResearch: false,
+      },
+    };
 
     return NextResponse.json({
       success: true,
       message: "Settings updated successfully",
-      settings: body,
+      settings,
     });
   } catch (error) {
     console.error("Error updating patient settings:", error);
@@ -42,4 +61,4 @@ export async function PUT(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

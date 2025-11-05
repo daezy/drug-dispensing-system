@@ -1,15 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
+import { withPharmacistAuth } from "@/lib/utils/api-middleware";
+import { connectToDatabase } from "@/lib/database/connection";
+import { Models } from "@/lib/database/models";
 
 // GET /api/pharmacists/profile - Get pharmacist profile
-export async function GET(request: NextRequest) {
+export const GET = withPharmacistAuth(async (request, user) => {
   try {
-    // TODO: Get user ID from session/token
-    // TODO: Fetch from database
+    await connectToDatabase();
 
-    // For now, return empty profile (will be populated from auth context on frontend)
+    const pharmacist = await Models.Pharmacist.findOne({ user_id: user.id })
+      .populate("user_id", "name email")
+      .populate("pharmacy_id", "name address city state")
+      .lean();
+
+    if (!pharmacist) {
+      return NextResponse.json(
+        { success: false, message: "Pharmacist profile not found" },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      profile: {},
+      profile: pharmacist,
     });
   } catch (error) {
     console.error("Error fetching pharmacist profile:", error);
@@ -18,24 +31,52 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
 // PUT /api/pharmacists/profile - Update pharmacist profile
-export async function PUT(request: NextRequest) {
+export const PUT = withPharmacistAuth(async (request, user) => {
   try {
     const body = await request.json();
 
-    // TODO: Get user ID from session/token
-    // TODO: Validate input
-    // TODO: Update database
+    // Validate allowed fields for update
+    const allowedUpdates = ["license_number", "phone", "shift_hours"];
+    const updates: any = {};
 
-    console.log("Updating pharmacist profile:", body);
+    for (const field of allowedUpdates) {
+      if (body[field] !== undefined) {
+        updates[field] = body[field];
+      }
+    }
 
-    // For now, return success
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json(
+        { success: false, message: "No valid fields to update" },
+        { status: 400 }
+      );
+    }
+
+    await connectToDatabase();
+
+    const updatedPharmacist = await Models.Pharmacist.findOneAndUpdate(
+      { user_id: user.id },
+      { $set: updates },
+      { new: true, runValidators: true }
+    )
+      .populate("user_id", "name email")
+      .populate("pharmacy_id", "name address city state")
+      .lean();
+
+    if (!updatedPharmacist) {
+      return NextResponse.json(
+        { success: false, message: "Pharmacist profile not found" },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
       message: "Profile updated successfully",
-      profile: body,
+      profile: updatedPharmacist,
     });
   } catch (error) {
     console.error("Error updating pharmacist profile:", error);
@@ -44,4 +85,4 @@ export async function PUT(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
