@@ -68,9 +68,17 @@ export default function PharmacistPatientsPage() {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      const data = await response.json();
+      console.log("Patients API response:", data);
+
       if (response.ok) {
-        const data = await response.json();
         setPatients(data.patients || []);
+      } else {
+        console.error(
+          "Failed to fetch patients:",
+          data.error || "Unknown error"
+        );
       }
     } catch (error) {
       console.error("Failed to load patients:", error);
@@ -165,11 +173,29 @@ export default function PharmacistPatientsPage() {
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                 No Patients Found
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
                 {searchTerm
                   ? "Try adjusting your search term"
                   : "No patient records available"}
               </p>
+              {!searchTerm && patients.length === 0 && (
+                <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-left max-w-md mx-auto">
+                  <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                    💡 Getting Started
+                  </h4>
+                  <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
+                    To see patient records, you need to:
+                  </p>
+                  <ol className="text-sm text-blue-800 dark:text-blue-200 list-decimal list-inside space-y-1">
+                    <li>Create a patient account via the registration page</li>
+                    <li>Or have a doctor create prescriptions for patients</li>
+                    <li>Patient records will automatically appear here</li>
+                  </ol>
+                  <p className="text-xs text-blue-700 dark:text-blue-300 mt-3">
+                    Check the browser console (F12) for more details.
+                  </p>
+                </div>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
