@@ -115,7 +115,7 @@ export default function DoctorHistoryPage() {
       const itemDate = new Date(item.date);
       // Check if date is valid
       if (isNaN(itemDate.getTime())) return false;
-      
+
       const now = new Date();
       const diffTime = now.getTime() - itemDate.getTime();
       const diffDays = diffTime / (1000 * 3600 * 24);
@@ -355,7 +355,8 @@ export default function DoctorHistoryPage() {
                               </p>
                             </div>
                             <span className="text-sm text-gray-500">
-                              {item.date && !isNaN(new Date(item.date).getTime())
+                              {item.date &&
+                              !isNaN(new Date(item.date).getTime())
                                 ? new Date(item.date).toLocaleDateString()
                                 : "No date"}
                             </span>
@@ -370,7 +371,8 @@ export default function DoctorHistoryPage() {
                             <div className="flex items-center gap-1">
                               <Clock className="w-4 h-4" />
                               <span>
-                                {item.date && !isNaN(new Date(item.date).getTime())
+                                {item.date &&
+                                !isNaN(new Date(item.date).getTime())
                                   ? new Date(item.date).toLocaleTimeString([], {
                                       hour: "2-digit",
                                       minute: "2-digit",

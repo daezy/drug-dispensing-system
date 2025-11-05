@@ -80,11 +80,14 @@ export default function PharmacistDashboard() {
         const token = localStorage.getItem("auth_token");
         if (!token) return;
 
-        const response = await fetch("/api/prescriptions/pharmacist?status=dispensed", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          "/api/prescriptions/pharmacist?status=dispensed",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (response.ok) {
           const data = await response.json();
@@ -210,7 +213,9 @@ export default function PharmacistDashboard() {
                     <span className="text-sm font-medium">Secure</span>
                   </div>
                   <p className="text-2xl font-bold mb-1">Blockchain Verified</p>
-                  <p className="text-5xl font-bold mb-2">{stats.dispensedPrescriptions}</p>
+                  <p className="text-5xl font-bold mb-2">
+                    {stats.dispensedPrescriptions}
+                  </p>
                   <p className="text-sm text-blue-100">Prescriptions secured</p>
                 </div>
                 <div className="flex items-center">
