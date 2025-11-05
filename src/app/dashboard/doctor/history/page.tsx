@@ -111,8 +111,11 @@ export default function DoctorHistoryPage() {
     }
 
     // Filter by time range
-    if (timeRange !== "all") {
+    if (timeRange !== "all" && item.date) {
       const itemDate = new Date(item.date);
+      // Check if date is valid
+      if (isNaN(itemDate.getTime())) return false;
+      
       const now = new Date();
       const diffTime = now.getTime() - itemDate.getTime();
       const diffDays = diffTime / (1000 * 3600 * 24);
@@ -352,7 +355,9 @@ export default function DoctorHistoryPage() {
                               </p>
                             </div>
                             <span className="text-sm text-gray-500">
-                              {new Date(item.date).toLocaleDateString()}
+                              {item.date && !isNaN(new Date(item.date).getTime())
+                                ? new Date(item.date).toLocaleDateString()
+                                : "No date"}
                             </span>
                           </div>
 
@@ -360,15 +365,17 @@ export default function DoctorHistoryPage() {
                           <div className="flex items-center gap-4 text-sm text-gray-600 mt-3">
                             <div className="flex items-center gap-1">
                               <User className="w-4 h-4" />
-                              <span>{item.patientName}</span>
+                              <span>{item.patientName || "Unknown"}</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <Clock className="w-4 h-4" />
                               <span>
-                                {new Date(item.date).toLocaleTimeString([], {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
+                                {item.date && !isNaN(new Date(item.date).getTime())
+                                  ? new Date(item.date).toLocaleTimeString([], {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })
+                                  : "No time"}
                               </span>
                             </div>
                           </div>
