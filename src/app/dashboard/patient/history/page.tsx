@@ -54,13 +54,31 @@ export default function PatientHistoryPage() {
     setIsLoading(true);
 
     try {
-      // Fetch history from API
-      const response = await fetch("/api/patients/history");
+      // Get auth token
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        showError("Please log in again");
+        router.push("/login");
+        return;
+      }
+
+      // Fetch history from API with bearer token
+      const response = await fetch("/api/patients/history", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       if (response.ok) {
         const data = await response.json();
         setHistory(data.history || []);
       } else {
-        showError("Failed to load history");
+        if (response.status === 401) {
+          showError("Session expired. Please log in again");
+          router.push("/login");
+        } else {
+          showError("Failed to load history");
+        }
       }
     } catch (error) {
       showError("Failed to load history");

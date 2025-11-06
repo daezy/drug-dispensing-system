@@ -16,7 +16,10 @@ if (!process.env.MONGODB_URI) {
 if (process.env.NODE_ENV === "development") {
   const maskedUri = MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, "//***:***@");
   console.log("🔗 MongoDB URI:", maskedUri);
-  console.log("🔗 URI Protocol:", MONGODB_URI.startsWith("mongodb+srv") ? "SRV (Atlas)" : "Standard");
+  console.log(
+    "🔗 URI Protocol:",
+    MONGODB_URI.startsWith("mongodb+srv") ? "SRV (Atlas)" : "Standard"
+  );
 }
 
 // Global connection cache to prevent multiple connections in development
