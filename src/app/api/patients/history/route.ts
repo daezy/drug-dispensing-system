@@ -44,32 +44,45 @@ export const GET = withPatientAuth(async (request, user) => {
       const drug = prescription.drug_id;
       const pharmacist = prescription.pharmacist_id;
 
+      // Determine the type based on status
+      let type: "prescription" | "dispensing" = "prescription";
+      if (prescription.status === "dispensed") {
+        type = "dispensing";
+      }
+
+      // Map status to frontend format
+      let displayStatus: "completed" | "cancelled" | "pending" = "completed";
+      if (prescription.status === "rejected" || prescription.status === "expired") {
+        displayStatus = "cancelled";
+      } else if (prescription.status === "dispensed") {
+        displayStatus = "completed";
+      }
+
+      // Create title and description
+      const medicationName = drug?.name || "Unknown Medication";
+      const dosage = drug?.strength || "N/A";
+      const title = `${medicationName} - ${dosage}`;
+      const description = type === "dispensing" 
+        ? `Dispensed ${prescription.quantity_dispensed || prescription.quantity_prescribed} units`
+        : `Prescribed ${prescription.quantity_prescribed} units`;
+
+      // Use the most relevant date
+      const date = prescription.date_dispensed || prescription.date_issued || prescription.updated_at;
+
       return {
         id: prescription._id.toString(),
-        prescriptionNumber: `RX${prescription._id
-          .toString()
-          .slice(-8)
-          .toUpperCase()}`,
-        medication: drug?.name || "Unknown",
-        dosage: drug?.strength || "N/A",
+        type,
+        title,
+        description,
+        date: date ? new Date(date).toISOString() : new Date().toISOString(),
+        status: displayStatus,
+        doctorName: doctor?.user_id?.username || "Unknown Doctor",
+        pharmacyName: pharmacist?.pharmacy_name || "Unknown Pharmacy",
+        medications: [medicationName],
+        // Additional details for reference
+        prescriptionNumber: `RX${prescription._id.toString().slice(-8).toUpperCase()}`,
         quantity: prescription.quantity_prescribed,
         dispensedQuantity: prescription.quantity_dispensed || 0,
-        status: prescription.status,
-        dateIssued: prescription.date_issued,
-        dateDispensed: prescription.date_dispensed,
-        dateUpdated: prescription.updated_at,
-        doctor: doctor?.user_id
-          ? {
-              name: doctor.user_id.username || "Unknown Doctor",
-              specialty: doctor.specialization || "General",
-            }
-          : null,
-        pharmacist: pharmacist?.user_id
-          ? {
-              name: pharmacist.user_id.username || "Unknown Pharmacist",
-              pharmacyName: pharmacist.pharmacy_name,
-            }
-          : null,
         notes: prescription.notes,
       };
     });
